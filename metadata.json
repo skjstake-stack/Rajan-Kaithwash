@@ -1,0 +1,6 @@
+{
+  "name": "Rajan Kaithwas Ji Vedic Astrology",
+  "description": "World-class Vedic astrology, AI Kundli, Panchang, and spiritual guidance by Rajan Kaithwas Ji.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

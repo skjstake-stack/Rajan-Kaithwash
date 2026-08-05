@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="hi">
+  <head>
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          if (originalFetch) {
+            var _currentFetch = originalFetch;
+            Object.defineProperty(window, 'fetch', {
+              get: function() { return _currentFetch; },
+              set: function(v) { _currentFetch = v; },
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (e) {
+          // Fallback if property modification is constrained
+        }
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>राजन कैथवास जी - वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन</title>
+    <meta name="description" content="प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन। जन्म कुंडली, राशिफल, आज का पंचांग, विवाह परामर्श, वास्तु एवं सटीक रत्न परामर्श।" />
+    <meta name="keywords" content="राजन कैथवास जी, वैदिक ज्योतिष, जन्म कुंडली, आज का राशिफल, पंचांग, वास्तु परामर्श, रत्न परामर्श, कुंडली मिलान" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="राजन कैथवास जी - वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन" />
+    <meta property="og:description" content="प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन।" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="hi_IN" />
+
+    <!-- Google Fonts for Devanagari Unicode Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org JSON-LD Markup in Hindi -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "राजन कैथवास जी वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन",
+      "description": "प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन",
+      "telephone": "+919876543210",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "सेक्टर 18, नोएडा",
+        "addressLocality": "नोएडा",
+        "addressRegion": "उत्तर प्रदेश",
+        "postalCode": "201301",
+        "addressCountry": "IN"
+      },
+      "openingHours": "Mo-Su 09:00-20:00",
+      "priceRange": "₹"
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

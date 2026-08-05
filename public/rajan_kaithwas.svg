@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1066" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a2e12"/>
+      <stop offset="30%" stop-color="#8c5820"/>
+      <stop offset="70%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#3d2208"/>
+    </linearGradient>
+
+    <linearGradient id="wallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e6be75"/>
+      <stop offset="50%" stop-color="#c69342"/>
+      <stop offset="100%" stop-color="#8a5a20"/>
+    </linearGradient>
+
+    <linearGradient id="sunRay" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="30%" stop-color="#ffea9f" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#ff3300"/>
+      <stop offset="40%" stop-color="#ff9900"/>
+      <stop offset="80%" stop-color="#ffea00"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+
+    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e2ab7f"/>
+      <stop offset="40%" stop-color="#cb8c5d"/>
+      <stop offset="80%" stop-color="#b06d3f"/>
+      <stop offset="100%" stop-color="#8f4f25"/>
+    </linearGradient>
+
+    <linearGradient id="shawlBorderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#800000"/>
+      <stop offset="25%" stop-color="#b30000"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="75%" stop-color="#b30000"/>
+      <stop offset="100%" stop-color="#800000"/>
+    </linearGradient>
+
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe699"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#997300"/>
+    </linearGradient>
+
+    <radialGradient id="haloGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffea9f" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#ff9933" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. BACKGROUND TEMPLE ARCH & LIGHTING -->
+  <rect width="800" height="1066" fill="url(#bgGrad)" />
+
+  <!-- Temple Pillars & Wall Texture -->
+  <path d="M 0,0 L 220,0 L 200,1066 L 0,1066 Z" fill="#593717" opacity="0.9" />
+  <path d="M 220,0 L 250,0 L 230,1066 L 200,1066 Z" fill="#8c5928" opacity="0.7" />
+  <path d="M 580,0 L 800,0 L 800,1066 L 560,1066 Z" fill="#593717" opacity="0.9" />
+
+  <!-- Gayatri Mantra Wall Stone Slab -->
+  <rect x="230" y="20" width="350" height="420" rx="12" fill="url(#wallGrad)" stroke="#663e14" stroke-width="8" filter="url(#shadow)"/>
+  <rect x="242" y="32" width="326" height="396" rx="8" fill="none" stroke="#d4af37" stroke-width="3" stroke-dasharray="12 6"/>
+
+  <!-- Sanskrit Gayatri Mantra Text -->
+  <g font-family="serif" text-anchor="middle" fill="#3b2005" font-weight="bold">
+    <text x="405" y="85" font-size="34" fill="#610000">ॐ  भूर्भुवः स्वः ।</text>
+    <text x="405" y="150" font-size="32">तत्सवितुर्वरेण्यं ।</text>
+    <text x="405" y="215" font-size="32">भर्गो देवस्य धीमहि ।</text>
+    <text x="405" y="280" font-size="32">धियो यो नः प्रचोदयात् ॥</text>
+  </g>
+
+  <!-- Sun rays from top left -->
+  <polygon points="0,0 450,0 800,1066 0,800" fill="url(#sunRay)" />
+
+  <!-- 2. SACRED HAVAN KUND & FIRE (Left Side) -->
+  <g transform="translate(40, 360)">
+    <!-- Havan Kund Stand -->
+    <path d="M 20,140 L 160,140 L 140,190 L 40,190 Z" fill="#7a4e23" stroke="#42270d" stroke-width="4"/>
+    <ellipse cx="90" cy="140" rx="75" ry="25" fill="#2e1a08" stroke="#d4af37" stroke-width="4"/>
+    <!-- Flames -->
+    <path d="M 40,135 Q 60,60 90,20 Q 110,70 140,135 Q 110,110 90,130 Q 70,110 40,135 Z" fill="url(#fireGrad)" filter="url(#softGlow)"/>
+    <path d="M 55,135 Q 75,70 90,40 Q 105,80 125,135 Z" fill="#ffffff" opacity="0.8"/>
+    <!-- Glow -->
+    <circle cx="90" cy="110" r="90" fill="url(#haloGlow)"/>
+  </g>
+
+  <!-- 3. BRASS DIYAS & TULSI PLANT (Right Side) -->
+  <g transform="translate(670, 360)">
+    <!-- Diya Brass Base -->
+    <path d="M 20,120 Q 50,150 80,120 Q 90,90 50,85 Q 10,90 20,120 Z" fill="url(#goldShine)" stroke="#5e4503" stroke-width="2"/>
+    <ellipse cx="50" cy="85" rx="35" ry="10" fill="#2d1d00"/>
+    <!-- Flame -->
+    <path d="M 42,85 Q 50,45 50,35 Q 50,45 58,85 Z" fill="url(#fireGrad)" filter="url(#softGlow)"/>
+  </g>
+
+  <!-- Tulsi Leaves (Top Right) -->
+  <g transform="translate(680, 160)" fill="#3d661d" opacity="0.9">
+    <ellipse cx="0" cy="0" rx="25" ry="12" transform="rotate(-30)"/>
+    <ellipse cx="30" cy="-10" rx="22" ry="10" transform="rotate(15)"/>
+    <ellipse cx="-20" cy="20" rx="28" ry="14" transform="rotate(-45)"/>
+    <ellipse cx="20" cy="30" rx="24" ry="11" transform="rotate(20)"/>
+  </g>
+
+  <!-- 4. ACHARYA RAJAN KAITHWAS JI - PORTRAIT SUBJECT -->
+  <!-- Main Aura Glow behind head -->
+  <circle cx="400" cy="380" r="180" fill="url(#haloGlow)"/>
+
+  <!-- Body & Clothing Base -->
+  <!-- White Kurta Base -->
+  <path d="M 120,1066 L 150,600 Q 220,530 400,530 Q 580,530 650,600 L 680,1066 Z" fill="#fdfdfd" filter="url(#shadow)"/>
+  <path d="M 150,600 Q 220,530 400,530 Q 580,530 650,600" fill="none" stroke="#e0e0e0" stroke-width="4"/>
+
+  <!-- Kurta Collar & Placket -->
+  <path d="M 320,550 L 400,620 L 480,550 L 460,530 L 400,580 L 340,530 Z" fill="#ffffff" stroke="#d6d6d6" stroke-width="2"/>
+  <rect x="393" y="600" width="14" height="180" fill="#f2f2f2" stroke="#d9d9d9" stroke-width="2"/>
+  <circle cx="400" cy="625" r="4" fill="#a6a6a6"/>
+  <circle cx="400" cy="660" r="4" fill="#a6a6a6"/>
+  <circle cx="400" cy="695" r="4" fill="#a6a6a6"/>
+
+  <!-- Draped Angavastram (Shawl over Left Shoulder - Right side of image viewer) -->
+  <g>
+    <!-- Shawl Main Body -->
+    <path d="M 380,550 Q 520,550 670,620 L 710,1066 L 500,1066 Q 440,780 380,550 Z" fill="#fafafa" filter="url(#shadow)"/>
+    
+    <!-- Red & Gold Border Strips -->
+    <path d="M 380,550 Q 520,550 670,620 L 685,635 Q 530,565 390,565 Z" fill="url(#shawlBorderGrad)"/>
+    <path d="M 390,565 Q 530,565 685,635 L 700,650 Q 540,580 400,580 Z" fill="#800000"/>
+    
+    <!-- Geometric Gold Triangle Pattern on Border -->
+    <path d="M 400,580 L 410,595 L 420,580 L 430,595 L 440,580 L 450,595 L 460,580 L 470,595 L 480,580 L 490,595 L 500,580" fill="#d4af37"/>
+
+    <!-- Golden Om Symbol on Shawl -->
+    <g transform="translate(610, 640) scale(0.7)" fill="url(#goldShine)">
+      <path d="M 20,30 Q 10,10 30,10 Q 50,10 40,30 Q 60,30 60,50 Q 60,70 30,70 Q 10,70 20,50 M 40,30 Q 60,10 75,30 Q 80,45 65,55 M 65,20 Q 80,10 90,20 Q 75,35 65,20"/>
+      <circle cx="78" cy="10" r="4"/>
+    </g>
+  </g>
+
+  <!-- Brown Rudraksha Beads Necklace -->
+  <g fill="#592b0c" stroke="#361704" stroke-width="2">
+    <!-- Bead Chain Arc -->
+    <path d="M 280,530 Q 320,800 400,900 Q 480,800 520,530" fill="none" stroke="#2b1100" stroke-width="4"/>
+    <!-- Individual Beads -->
+    <circle cx="288" cy="550" r="10"/><circle cx="298" cy="580" r="10"/><circle cx="308" cy="610" r="10"/><circle cx="318" cy="640" r="10"/>
+    <circle cx="328" cy="670" r="10"/><circle cx="338" cy="700" r="10"/><circle cx="348" cy="730" r="10"/><circle cx="358" cy="760" r="10"/>
+    <circle cx="368" cy="790" r="10"/><circle cx="378" cy="820" r="10"/><circle cx="388" cy="850" r="10"/><circle cx="400" cy="880" r="12" fill="#d4af37"/>
+    <circle cx="412" cy="850" r="10"/><circle cx="422" cy="820" r="10"/><circle cx="432" cy="790" r="10"/><circle cx="442" cy="760" r="10"/>
+    <circle cx="452" cy="730" r="10"/><circle cx="462" cy="700" r="10"/><circle cx="472" cy="670" r="10"/><circle cx="482" cy="640" r="10"/>
+    <circle cx="492" cy="610" r="10"/><circle cx="502" cy="580" r="10"/><circle cx="512" cy="550" r="10"/>
+    <!-- Yellow Tassel -->
+    <path d="M 395,890 L 385,960 L 415,960 L 405,890 Z" fill="#ffcc00"/>
+  </g>
+
+  <!-- Neck -->
+  <path d="M 330,480 L 330,550 Q 400,580 470,550 L 470,480 Z" fill="url(#skinGrad)"/>
+
+  <!-- Face Structure -->
+  <g filter="url(#shadow)">
+    <!-- Jaw and Head Base -->
+    <path d="M 270,280 Q 260,400 320,480 Q 400,530 480,480 Q 540,400 530,280 Q 510,180 400,170 Q 290,180 270,280 Z" fill="url(#skinGrad)"/>
+    
+    <!-- Ears -->
+    <path d="M 255,300 Q 240,340 265,380 Z" fill="#c48354"/>
+    <path d="M 545,300 Q 560,340 535,380 Z" fill="#c48354"/>
+
+    <!-- Hair (Neat Dark Black Hair, Well Groomed) -->
+    <path d="M 250,290 Q 260,170 380,140 Q 480,130 540,240 Q 550,290 535,320 Q 520,200 400,180 Q 280,190 250,290 Z" fill="#14110f"/>
+    <path d="M 265,270 Q 320,180 400,175 Q 490,180 530,270 Q 490,200 400,195 Q 310,200 265,270 Z" fill="#29231f"/>
+
+    <!-- Eyebrows -->
+    <path d="M 310,295 Q 345,280 380,295" stroke="#1f1813" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M 420,295 Q 455,280 490,295" stroke="#1f1813" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+    <!-- Eyes -->
+    <!-- Left Eye -->
+    <ellipse cx="345" cy="325" rx="22" ry="14" fill="#ffffff"/>
+    <ellipse cx="345" cy="325" rx="11" ry="11" fill="#3b240e"/>
+    <circle cx="345" cy="325" r="5" fill="#000000"/>
+    <circle cx="341" cy="321" r="3" fill="#ffffff"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="455" cy="325" rx="22" ry="14" fill="#ffffff"/>
+    <ellipse cx="455" cy="325" rx="11" ry="11" fill="#3b240e"/>
+    <circle cx="455" cy="325" r="5" fill="#000000"/>
+    <circle cx="451" cy="321" r="3" fill="#ffffff"/>
+
+    <!-- Tilak on Forehead (Yellow Gold U-shape + Red Spot) -->
+    <path d="M 392,230 L 392,270 Q 400,282 408,270 L 408,230 Z" fill="#ffcc00"/>
+    <circle cx="400" cy="272" r="6" fill="#cc0000"/>
+
+    <!-- Nose -->
+    <path d="M 395,290 L 385,370 Q 400,385 415,370 L 405,290 Z" fill="#be7f52" opacity="0.5"/>
+    <path d="M 380,365 Q 400,385 420,365" stroke="#8a532b" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+    <!-- Mustache (Traditional Neat Dark Mustache) -->
+    <path d="M 325,410 Q 365,395 400,412 Q 435,395 475,410 Q 485,425 450,432 Q 400,435 350,432 Q 315,425 325,410 Z" fill="#1c1613"/>
+
+    <!-- Lips -->
+    <path d="M 355,445 Q 400,460 445,445 Q 400,452 355,445 Z" fill="#a85b44"/>
+
+    <!-- Soft Smile & Chin Lines -->
+    <path d="M 370,490 Q 400,502 430,490" stroke="#8a532b" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+  </g>
+</svg>

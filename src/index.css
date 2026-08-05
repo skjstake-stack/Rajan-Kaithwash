@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #050B18;
+    color: #F8FAFC;
+    font-family: 'Hind', 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Noto Sans Devanagari', 'Cinzel', 'Playfair Display', serif;
+  }
+}
+
+.bg-cosmic {
+  background-color: #050B18;
+}
+
+.cosmic-radial-glow {
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(255, 153, 51, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(184, 134, 11, 0.10) 0%, transparent 50%);
+  filter: blur(40px);
+}
+
+.bg-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bg-glass-card {
+  background: rgba(10, 18, 38, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.bg-glass-gold {
+  background: rgba(212, 175, 55, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+  color: #050B18;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.35);
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 28px rgba(212, 175, 55, 0.5);
+}
+
+.btn-gold-outline {
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+  transition: all 0.3s ease;
+}
+
+.btn-gold-outline:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #D4AF37;
+  color: #FFFFFF;
+}
+
+.text-gold {
+  color: #D4AF37;
+}
+
+.text-saffron {
+  color: #FF9933;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFF5C0 0%, #D4AF37 50%, #B8860B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gold-subtle {
+  border-color: rgba(212, 175, 55, 0.25);
+}
