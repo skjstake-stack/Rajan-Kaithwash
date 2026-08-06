@@ -55,7 +55,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ darkMo
             प्रशंसापत्र एवं <span className="text-[#D4AF37] italic">सफलता की गाथाएँ</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
-            देश एवं विदेश के उन हजारों श्रद्धालुओं के विचार पढ़ें, जिनके जीवन में आचार्य राजन कैथवास जी के मार्गदर्शन से सकारात्मक बदलाव आया।
+            देश एवं विदेश के उन हजारों श्रद्धालुओं के विचार पढ़ें, जिनके जीवन में राजन कैथवास (मंटू) के मार्गदर्शन से सकारात्मक बदलाव आया।
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ darkMo
                   <textarea
                     rows={3}
                     required
-                    placeholder="आचार्य जी के परामर्श एवं उपायों से प्राप्त अनुभव का विवरण लिखें..."
+                    placeholder="परामर्श एवं उपायों से प्राप्त अनुभव का विवरण लिखें..."
                     value={newReview.comment}
                     onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#D4AF37]"

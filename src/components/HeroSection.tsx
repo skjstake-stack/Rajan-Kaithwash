@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calendar, MessageSquare, Phone, Compass } from 'lucide-react';
-import { Language, HeroBannerData, RajanProfile } from '../types';
+import { Sparkles, Calendar, MessageSquare, Phone, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Language, HeroBannerData, RajanProfile, HomeBannerItem, HomeBannerSettings } from '../types';
 import { translations } from '../translations';
 
 interface HeroSectionProps {
@@ -22,7 +22,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const [rajanProfile, setRajanProfile] = useState<RajanProfile>({
     id: 'rajan_profile_1',
-    name: 'राजन कैथवास जी',
+    name: 'राजन कैथवास (मंटू)',
     designation: 'वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक',
     short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
     image_url: '/rajan_kaithwas.svg',
@@ -35,14 +35,26 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [heroData, setHeroData] = useState<HeroBannerData>({
     secure_url: '/rajan_kaithwas.svg',
     public_id: 'hero/rajan_kaithwas_main',
-    title: 'राजन कैथवास जी',
+    title: 'राजन कैथवास (मंटू)',
     subtitle: 'वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन',
     tagline: 'प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन',
   });
 
+  const [activeBanners, setActiveBanners] = useState<HomeBannerItem[]>([]);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
+  const [bannerSettings, setBannerSettings] = useState<HomeBannerSettings>({
+    autoRotation: true,
+    sliderMode: 'auto',
+    autoRotationIntervalSec: 5,
+    overlayOpacity: 50,
+    textAlignment: 'left',
+    darkOverlay: true,
+    animationEffect: 'fade',
+  });
+
   const [offsetY, setOffsetY] = useState(0);
 
-  // Fetch Profile & Hero Banner configuration from API
+  // Fetch Profile & Home Banners configuration from API
   const fetchProfileAndHero = async () => {
     try {
       // Fetch Rajan Profile
@@ -52,16 +64,61 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         setRajanProfile(profData.profile);
       }
 
-      // Fetch Hero Banner
-      const heroRes = await fetch('/api/hero');
-      const heroDataRes = await heroRes.json();
-      if (heroDataRes.success && heroDataRes.hero) {
-        setHeroData(heroDataRes.hero);
+      // Fetch Home Banners
+      const hbRes = await fetch('/api/home-banner?status=active');
+      const hbData = await hbRes.json();
+      if (hbData.success && hbData.banners && hbData.banners.length > 0) {
+        setActiveBanners(hbData.banners);
+        if (hbData.settings) setBannerSettings(hbData.settings);
+
+        const currentActive = hbData.banners[0];
+        setHeroData({
+          secure_url: currentActive.hero_image_url,
+          public_id: currentActive.cloudinary_public_id || 'hero/banner',
+          title: currentActive.title,
+          subtitle: currentActive.subtitle || '',
+          tagline: currentActive.description || '',
+        });
+      } else {
+        // Fallback to /api/hero
+        const heroRes = await fetch('/api/hero');
+        const heroDataRes = await heroRes.json();
+        if (heroDataRes.success && heroDataRes.hero) {
+          setHeroData(heroDataRes.hero);
+        }
       }
     } catch (err) {
       console.warn('Failed to load hero or profile data from API:', err);
     }
   };
+
+  // Auto Slider Interval timer
+  useEffect(() => {
+    if (
+      activeBanners.length > 1 &&
+      bannerSettings.autoRotation &&
+      bannerSettings.sliderMode === 'auto'
+    ) {
+      const intervalMs = (bannerSettings.autoRotationIntervalSec || 5) * 1000;
+      const timer = setInterval(() => {
+        setCurrentSlideIndex(prev => {
+          const nextIndex = (prev + 1) % activeBanners.length;
+          const nextBanner = activeBanners[nextIndex];
+          if (nextBanner) {
+            setHeroData({
+              secure_url: nextBanner.hero_image_url,
+              public_id: nextBanner.cloudinary_public_id || 'hero/banner',
+              title: nextBanner.title,
+              subtitle: nextBanner.subtitle || '',
+              tagline: nextBanner.description || '',
+            });
+          }
+          return nextIndex;
+        });
+      }, intervalMs);
+      return () => clearInterval(timer);
+    }
+  }, [activeBanners, bannerSettings]);
 
   useEffect(() => {
     if (initialHeroBannerData && initialHeroBannerData.secure_url) {
@@ -207,9 +264,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </span>
             </div>
 
-            {/* Title: Name of Rajan Kaithwas Ji */}
+            {/* Title: Name of Rajan Kaithwas */}
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-extrabold leading-[1.1] text-white tracking-tight drop-shadow-lg mb-2">
-              {rajanProfile.name || 'राजन कैथवास जी'}
+              {rajanProfile.name || 'राजन कैथवास (मंटू)'}
             </h1>
 
             {/* Subtitle: Designation */}
@@ -306,6 +363,74 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Optional Slider Navigation Controls */}
+      {activeBanners.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 bg-[#050B18]/70 border border-white/20 px-4 py-2 rounded-full backdrop-blur-md">
+          <button
+            onClick={() => {
+              const prevIndex = (currentSlideIndex - 1 + activeBanners.length) % activeBanners.length;
+              setCurrentSlideIndex(prevIndex);
+              const b = activeBanners[prevIndex];
+              if (b) {
+                setHeroData({
+                  secure_url: b.hero_image_url,
+                  public_id: b.cloudinary_public_id || 'hero/banner',
+                  title: b.title,
+                  subtitle: b.subtitle || '',
+                  tagline: b.description || '',
+                });
+              }
+            }}
+            className="p-1 text-white/70 hover:text-white transition-colors cursor-pointer"
+            title="पिछला बैनर"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {activeBanners.map((b, idx) => (
+              <button
+                key={b.id}
+                onClick={() => {
+                  setCurrentSlideIndex(idx);
+                  setHeroData({
+                    secure_url: b.hero_image_url,
+                    public_id: b.cloudinary_public_id || 'hero/banner',
+                    title: b.title,
+                    subtitle: b.subtitle || '',
+                    tagline: b.description || '',
+                  });
+                }}
+                className={`h-2 rounded-full transition-all cursor-pointer ${
+                  idx === currentSlideIndex ? 'w-6 bg-[#D4AF37]' : 'w-2 bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              const nextIndex = (currentSlideIndex + 1) % activeBanners.length;
+              setCurrentSlideIndex(nextIndex);
+              const b = activeBanners[nextIndex];
+              if (b) {
+                setHeroData({
+                  secure_url: b.hero_image_url,
+                  public_id: b.cloudinary_public_id || 'hero/banner',
+                  title: b.title,
+                  subtitle: b.subtitle || '',
+                  tagline: b.description || '',
+                });
+              }
+            }}
+            className="p-1 text-white/70 hover:text-white transition-colors cursor-pointer"
+            title="अगला बैनर"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </section>
   );
 };

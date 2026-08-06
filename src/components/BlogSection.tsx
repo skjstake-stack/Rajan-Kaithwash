@@ -35,7 +35,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ darkMode }) => {
             ज्योतिष लेख एवं <span className="text-[#D4AF37] italic">वैदिक ब्लॉग</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
-            आचार्य राजन कैथवास जी द्वारा रचित वास्तु शास्त्र, ग्रह गोचर, कुण्डली दोष एवं रत्न धारण विधि पर प्रामाणिक लेख पढ़ें।
+            राजन कैथवास (मंटू) द्वारा रचित वास्तु शास्त्र, ग्रह गोचर, कुण्डली दोष एवं रत्न धारण विधि पर प्रामाणिक लेख पढ़ें।
           </p>
         </div>
 

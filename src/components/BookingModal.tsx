@@ -356,7 +356,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ initialServiceId, on
             </div>
 
             <div>
-              <label className="block text-white/70 font-semibold mb-1 text-xs">आचार्य जी के लिए विशेष प्रश्न / टिप्पणी (Optional)</label>
+              <label className="block text-white/70 font-semibold mb-1 text-xs">राजन कैथवास (मंटू) के लिए विशेष प्रश्न / टिप्पणी (Optional)</label>
               <textarea
                 rows={2}
                 placeholder="विवाह, करियर, स्वास्थ्य आदि संबंधित विशेष समस्या लिखें..."

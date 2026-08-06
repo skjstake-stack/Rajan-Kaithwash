@@ -68,7 +68,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ darkMode, onOp
             वैदिक ज्योतिष एवं <span className="text-[#D4AF37] italic">आध्यात्मिक सेवाएँ</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
-            आचार्य राजन कैथवास जी द्वारा व्यक्तिगत परामर्श: वीडियो कॉल, ऑडियो, व्हाट्सऐप या व्यक्तिगत भेंट।
+            राजन कैथवास (मंटू) द्वारा व्यक्तिगत परामर्श: वीडियो कॉल, ऑडियो, व्हाट्सऐप या व्यक्तिगत भेंट।
           </p>
         </div>
 

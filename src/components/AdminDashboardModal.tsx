@@ -182,7 +182,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ onClos
               <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#D4AF37]">
                 एडमिन नियंत्रण कक्ष (Admin Panel)
               </h2>
-              <p className="text-xs text-white/50">आचार्य राजन कैथवास जी कार्यालय पोर्टल</p>
+              <p className="text-xs text-white/50">राजन कैथवास (मंटू) कार्यालय पोर्टल</p>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, Sparkles, Phone, Mail, MapPin, ShieldCheck, Heart } from 'lucide-react';
+import { ArrowUp, Sparkles, Phone, Mail, MapPin, ShieldCheck, Heart, Youtube, Instagram, Facebook, MessageSquare, Share2 } from 'lucide-react';
 import { Language } from '../types';
 import { LANGUAGES } from '../translations';
 
@@ -14,6 +14,36 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const socialLinks = [
+    {
+      name: 'YouTube',
+      handle: '@rajankaithwasji',
+      label: 'यूट्यूब (50K+ सब्‍सक्राइबर्स)',
+      url: 'https://youtube.com/@rajankaithwasji',
+      icon: Youtube,
+      hoverClass: 'hover:bg-red-600/20 hover:border-red-500/50 hover:text-red-400',
+      badgeBg: 'bg-red-500/10 text-red-400 border-red-500/30',
+    },
+    {
+      name: 'Instagram',
+      handle: '@rajankaithwasji',
+      label: 'इंस्टाग्राम (दैनिक राशिफल रील्स)',
+      url: 'https://instagram.com/rajankaithwasji',
+      icon: Instagram,
+      hoverClass: 'hover:bg-pink-600/20 hover:border-pink-500/50 hover:text-pink-400',
+      badgeBg: 'bg-pink-500/10 text-pink-400 border-pink-500/30',
+    },
+    {
+      name: 'Facebook',
+      handle: 'राजन कैथवास (मंटू)',
+      label: 'फ़ेसबुक (लाइव सत्संग एवं ज्योतिष)',
+      url: 'https://facebook.com/rajankaithwasji',
+      icon: Facebook,
+      hoverClass: 'hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-blue-400',
+      badgeBg: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    },
+  ];
+
   return (
     <footer className="bg-[#030712] text-white border-t border-white/10 relative overflow-hidden">
       {/* Background Glow */}
@@ -21,8 +51,8 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Col 1: Brand & Bio */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Col 1: Brand, Bio & Social Links */}
+          <div className="lg:col-span-2 space-y-5">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#FF9933] to-[#B8860B] p-0.5 shadow-lg shadow-[#D4AF37]/20">
                 <div className="w-full h-full bg-[#050B18] rounded-[14px] flex items-center justify-center font-serif text-[#D4AF37] font-bold text-lg">
@@ -31,7 +61,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
               </div>
               <div>
                 <span className="font-serif text-base font-bold tracking-tight text-[#D4AF37] block">
-                  राजन कैथवास जी
+                  राजन कैथवास (मंटू)
                 </span>
                 <span className="text-[10px] text-[#FF9933] font-semibold tracking-wider block">
                   वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन
@@ -40,10 +70,37 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
             </div>
 
             <p className="text-xs text-white/70 leading-relaxed max-w-sm">
-              "प्राचीन वैदिक ज्ञान के माध्यम सेआपके जीवन का सही मार्गदर्शन।" अंतरराष्ट्रीय स्वर्ण पदक प्राप्त ज्योतिषाचार्य - जन्म कुंडली विश्लेषण, विवाह मिलान, वास्तु शास्त्र एवं रत्न परामर्श।
+              "प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन।" अंतरराष्ट्रीय स्वर्ण पदक प्राप्त ज्योतिषाचार्य - जन्म कुंडली विश्लेषण, विवाह मिलान, वास्तु शास्त्र एवं रत्न परामर्श।
             </p>
 
-            <div className="flex items-center space-x-2 text-xs text-[#D4AF37] pt-2">
+            {/* Social Media Integration Component */}
+            <div className="pt-2 space-y-2.5">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[#D4AF37]">
+                <Share2 className="w-3.5 h-3.5 text-[#FF9933]" />
+                <span>सोशल मीडिया पर जुड़ें (Social Media):</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <a
+                      key={s.name}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={s.label}
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/90 text-xs transition-all duration-200 hover:scale-105 cursor-pointer ${s.hoverClass}`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="font-medium text-[11px]">{s.name}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 text-xs text-[#D4AF37] pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>100% गोपनीय एवं प्रामाणिक वैदिक परामर्श संस्थान</span>
             </div>
@@ -80,11 +137,59 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
             </ul>
           </div>
 
-          {/* Col 4: Language & Admin */}
+          {/* Col 4: Social Channels Bar, Language & Admin */}
           <div className="space-y-4">
             <h4 className="font-serif font-bold text-[#D4AF37] text-sm border-b border-white/10 pb-2">
-              भाषा एवं पोर्टल
+              आधिकारिक सोशल चैनल
             </h4>
+
+            {/* Detailed Social Channel Cards */}
+            <div className="space-y-2 text-xs">
+              <a
+                href="https://youtube.com/@rajankaithwasji"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-red-500/40 hover:bg-red-950/20 transition-all text-white/80 hover:text-white"
+              >
+                <div className="flex items-center space-x-2">
+                  <Youtube className="w-4 h-4 text-red-500" />
+                  <span className="font-medium text-xs">YouTube Channel</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-semibold">
+                  सब्सक्राइब करें
+                </span>
+              </a>
+
+              <a
+                href="https://instagram.com/rajankaithwasji"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-pink-500/40 hover:bg-pink-950/20 transition-all text-white/80 hover:text-white"
+              >
+                <div className="flex items-center space-x-2">
+                  <Instagram className="w-4 h-4 text-pink-500" />
+                  <span className="font-medium text-xs">Instagram Profile</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 font-semibold">
+                  फॉलो करें
+                </span>
+              </a>
+
+              <a
+                href="https://facebook.com/rajankaithwasji"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/40 hover:bg-blue-950/20 transition-all text-white/80 hover:text-white"
+              >
+                <div className="flex items-center space-x-2">
+                  <Facebook className="w-4 h-4 text-blue-500" />
+                  <span className="font-medium text-xs">Facebook Page</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
+                  लाइक करें
+                </span>
+              </a>
+            </div>
 
             <div>
               <label className="block text-[11px] text-white/50 mb-1">भाषा चुनें (Select Language):</label>
@@ -112,7 +217,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
 
         {/* Bottom Bar & Disclaimer */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-white/40 gap-4">
-          <p>© {new Date().getFullYear()} राजन कैथवास जी वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन। सर्वाधिकार सुरक्षित।</p>
+          <p>© {new Date().getFullYear()} राजन कैथवास (मंटू) वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन। सर्वाधिकार सुरक्षित।</p>
           <p className="text-center sm:text-right max-w-md">
             अस्वीकरण: ज्योतिषीय फलादेश पारंपरिक वैदिक गणनाओं एवं आध्यात्मिक मार्गदर्शन हेतु प्रदान किए जाते हैं।
           </p>
@@ -130,3 +235,4 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
     </footer>
   );
 };
+

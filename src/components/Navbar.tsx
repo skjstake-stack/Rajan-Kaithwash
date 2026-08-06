@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Phone, MessageSquare, Calendar, Menu, X, Sun, Moon, Globe, Shield } from 'lucide-react';
+import { Sparkles, Phone, MessageSquare, Calendar, Menu, X, Sun, Moon, Globe, Shield, Lock } from 'lucide-react';
 import { Language } from '../types';
 import { languageNames, translations } from '../translations';
+
 
 interface NavbarProps {
   currentLang: Language;
@@ -99,12 +100,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
           <button
             onClick={onOpenAdmin}
-            className="flex items-center text-[#D4AF37] hover:text-white text-[11px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 transition-all"
+            className="flex items-center text-[#D4AF37] hover:text-white text-[11px] uppercase tracking-wider font-semibold px-3 py-1 rounded-full border border-[#D4AF37]/50 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/25 transition-all shadow-[0_0_10px_rgba(212,175,55,0.2)] cursor-pointer"
           >
-            <Shield className="w-3 h-3 mr-1" />
-            Admin
+            <Shield className="w-3 h-3 mr-1 text-[#D4AF37]" />
+            <Lock className="w-2.5 h-2.5 mr-1 text-[#FF9933]" />
+            Admin Login
           </button>
         </div>
+
       </div>
 
       {/* Main Navbar */}
@@ -122,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="flex flex-col">
               <h1 className="text-lg sm:text-xl font-serif font-bold tracking-wide text-[#D4AF37]">
-                राजन कैथवास जी
+                राजन कैथवास (मंटू)
               </h1>
               <p className="text-[10px] tracking-wider text-white/70">
                 वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन
@@ -194,20 +197,32 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Dark Mode Toggle */}
             <button
               onClick={onToggleDarkMode}
-              className="p-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-[#D4AF37] transition-all"
+              className="p-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-[#D4AF37] transition-all cursor-pointer"
               title="Toggle Theme"
             >
               {darkMode ? <Sun className="w-4 h-4 text-[#D4AF37]" /> : <Moon className="w-4 h-4 text-white" />}
             </button>
 
+            {/* Admin Login Button */}
+            <button
+              onClick={onOpenAdmin}
+              className="px-3.5 py-1.5 rounded-full border border-[#D4AF37]/60 bg-gradient-to-r from-[#D4AF37]/15 to-[#B8860B]/15 text-[#D4AF37] hover:text-white text-xs font-semibold tracking-wide flex items-center gap-1.5 shadow-[0_0_12px_rgba(212,175,55,0.2)] hover:border-[#D4AF37] hover:scale-105 transition-all cursor-pointer"
+              title="Admin Login Control Panel"
+            >
+              <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <Lock className="w-3 h-3 text-[#FF9933]" />
+              <span>Admin Login</span>
+            </button>
+
             {/* CTA Book Button */}
             <button
               onClick={() => onOpenBooking()}
-              className="px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] text-xs font-bold uppercase rounded-full shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] text-xs font-bold uppercase rounded-full shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>{t.bookNow || 'Book Appointment'}</span>
             </button>
+
           </div>
 
           {/* Mobile Menu Button */}

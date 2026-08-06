@@ -119,7 +119,7 @@
     <ellipse cx="20" cy="30" rx="24" ry="11" transform="rotate(20)"/>
   </g>
 
-  <!-- 4. ACHARYA RAJAN KAITHWAS JI - PORTRAIT SUBJECT -->
+  <!-- 4. RAJAN KAITHWAS JI - PORTRAIT SUBJECT -->
   <!-- Main Aura Glow behind head -->
   <circle cx="400" cy="380" r="180" fill="url(#haloGlow)"/>
 

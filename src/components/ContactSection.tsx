@@ -38,7 +38,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
             <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] font-semibold">प्रत्यक्ष मार्गदर्शन एवं कार्यालय अपॉइंटमेंट</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight text-white">
-            संपर्क करें - <span className="text-[#D4AF37] italic">आचार्य राजन कैथवास जी</span>
+            संपर्क करें - <span className="text-[#D4AF37] italic">राजन कैथवास (मंटू)</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
             ऑनलाइन वीडियो परामर्श, नोएडा एनसीआर कार्यालय आगमन, अथवा आपातकालीन ज्योतिषीय जिज्ञासा हेतु संपर्क करें।
@@ -115,7 +115,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
               परामर्श पूछताछ प्रपत्र
             </h3>
             <p className="text-xs text-white/60 mb-6">
-              अपना विवरण नीचे भरें, आचार्य जी की टीम आपसे 2 घंटे के भीतर संपर्क करेगी।
+              अपना विवरण नीचे भरें, राजन कैथवास (मंटू) की टीम आपसे 2 घंटे के भीतर संपर्क करेगी।
             </p>
 
             {formSent ? (

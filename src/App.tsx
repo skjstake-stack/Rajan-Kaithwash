@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { PanchangWidget } from './components/PanchangWidget';
@@ -12,27 +12,122 @@ import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 
-// Modals
+// Modals & Admin Pages
 import { BookingModal } from './components/BookingModal';
-import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { VoiceAssistantModal } from './components/VoiceAssistantModal';
+import { AdminLogin } from './components/AdminLogin';
+import { AdminDashboard } from './components/AdminDashboard';
 
-import { Language } from './types';
+import { Language, AdminUser } from './types';
 
 export default function App() {
   const [currentLang, setCurrentLang] = useState<Language>('hi');
   const [darkMode, setDarkMode] = useState(true);
 
+  // View Routing State: 'site' | 'admin-login' | 'admin-dashboard'
+  const [currentView, setCurrentView] = useState<'site' | 'admin-login' | 'admin-dashboard'>('site');
+
+  // Admin Auth State
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [adminToken, setAdminToken] = useState<string>('');
+
   // Modal States
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingServiceId, setBookingServiceId] = useState<string | undefined>(undefined);
-  const [showAdminModal, setShowAdminModal] = useState(false);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  // Sync state with URL path on load
+  useEffect(() => {
+    const path = window.location.pathname;
+    const storedToken = localStorage.getItem('rajan_admin_token') || sessionStorage.getItem('rajan_admin_token');
+    const storedUser = localStorage.getItem('rajan_admin_user') || sessionStorage.getItem('rajan_admin_user');
+
+    if (storedToken && storedUser) {
+      try {
+        const userObj = JSON.parse(storedUser);
+        setAdminUser(userObj);
+        setAdminToken(storedToken);
+      } catch (e) {
+        console.warn('Error parsing stored admin user:', e);
+      }
+    }
+
+    if (path === '/admin/login') {
+      setCurrentView('admin-login');
+    } else if (path === '/admin/dashboard') {
+      if (storedToken && storedUser) {
+        setCurrentView('admin-dashboard');
+      } else {
+        // Unauthenticated access to /admin/dashboard redirects to /admin/login
+        window.history.pushState({}, '', '/admin/login');
+        setCurrentView('admin-login');
+      }
+    }
+  }, []);
 
   const handleOpenBooking = (serviceId?: string) => {
     setBookingServiceId(serviceId);
     setShowBookingModal(true);
   };
+
+  const handleOpenAdminLogin = () => {
+    window.history.pushState({}, '', '/admin/login');
+    setCurrentView('admin-login');
+  };
+
+  const handleAdminLoginSuccess = (user: AdminUser, token: string) => {
+    setAdminUser(user);
+    setAdminToken(token);
+    window.history.pushState({}, '', '/admin/dashboard');
+    setCurrentView('admin-dashboard');
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('rajan_admin_token');
+    localStorage.removeItem('rajan_admin_user');
+    sessionStorage.removeItem('rajan_admin_token');
+    sessionStorage.removeItem('rajan_admin_user');
+    setAdminUser(null);
+    setAdminToken('');
+    window.history.pushState({}, '', '/');
+    setCurrentView('site');
+  };
+
+  const handleGoToSite = () => {
+    window.history.pushState({}, '', '/');
+    setCurrentView('site');
+  };
+
+  // Render Admin Login Page (/admin/login)
+  if (currentView === 'admin-login') {
+    return (
+      <AdminLogin
+        onLoginSuccess={handleAdminLoginSuccess}
+        onBackToSite={handleGoToSite}
+      />
+    );
+  }
+
+  // Render Admin Dashboard Page (/admin/dashboard - Protected Route)
+  if (currentView === 'admin-dashboard') {
+    if (!adminUser) {
+      return (
+        <AdminLogin
+          onLoginSuccess={handleAdminLoginSuccess}
+          onBackToSite={handleGoToSite}
+        />
+      );
+    }
+
+    return (
+      <AdminDashboard
+        adminUser={adminUser}
+        token={adminToken}
+        onLogout={handleAdminLogout}
+        onGoToSite={handleGoToSite}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen font-sans relative overflow-x-hidden selection:bg-[#D4AF37] selection:text-[#050B18] transition-colors duration-300 ${darkMode ? 'bg-[#050B18] text-white' : 'bg-[#0A1226] text-[#F8FAFC]'}`}>
@@ -53,7 +148,7 @@ export default function App() {
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode(!darkMode)}
           onOpenBooking={() => handleOpenBooking()}
-          onOpenAdmin={() => setShowAdminModal(true)}
+          onOpenAdmin={handleOpenAdminLogin}
         />
       </div>
 
@@ -115,7 +210,7 @@ export default function App() {
       <Footer
         currentLang={currentLang}
         onLanguageChange={setCurrentLang}
-        onOpenAdmin={() => setShowAdminModal(true)}
+        onOpenAdmin={handleOpenAdminLogin}
       />
 
       {/* Modals */}
@@ -123,12 +218,6 @@ export default function App() {
         <BookingModal
           initialServiceId={bookingServiceId}
           onClose={() => setShowBookingModal(false)}
-        />
-      )}
-
-      {showAdminModal && (
-        <AdminDashboardModal
-          onClose={() => setShowAdminModal(false)}
         />
       )}
 

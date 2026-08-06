@@ -34,7 +34,7 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([
     {
       role: 'bot',
-      text: 'हरि ॐ! मैं आचार्य राजन कैथवास जी का एआई वैदिक सहायक हूँ। आप अपनी कुंडली, ग्रह-दोष, करियर, विवाह मिलान, शुभ रत्न या वास्तु शास्त्र से संबंधित कोई भी प्रश्न पूछ सकते हैं।',
+      text: 'हरि ॐ! मैं राजन कैथवास (मंटू) का एआई वैदिक सहायक हूँ। आप अपनी कुंडली, ग्रह-दोष, करियर, विवाह मिलान, शुभ रत्न या वास्तु शास्त्र से संबंधित कोई भी प्रश्न पूछ सकते हैं।',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -159,7 +159,7 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
             एआई वैदिक ज्योतिष <span className="text-[#D4AF37] italic">स्टूडियो</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
-            तत्काल एआई जन्म कुंडली विश्लेषण, 36 गुण मिलान, शुभ रत्न परामर्श, अथवा आचार्य राजन कैथवास जी के एआई ज्योतिषी से 24x7 संवाद करें।
+            तत्काल एआई जन्म कुंडली विश्लेषण, 36 गुण मिलान, शुभ रत्न परामर्श, अथवा राजन कैथवास (मंटू) के एआई ज्योतिषी से 24x7 संवाद करें।
           </p>
         </div>
 

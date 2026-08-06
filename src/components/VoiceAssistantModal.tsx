@@ -125,7 +125,7 @@ export const VoiceAssistantModal: React.FC<VoiceAssistantModalProps> = ({ curren
           {isListening
             ? 'सुन रहा हूँ... अब बोलें!'
             : isSpeaking
-            ? 'आचार्य एआई उत्तर दे रहे हैं...'
+            ? 'एआई उत्तर दे रहे हैं...'
             : 'प्रश्न बोलने हेतु माइक का बटन दबाएं'}
         </p>
 
