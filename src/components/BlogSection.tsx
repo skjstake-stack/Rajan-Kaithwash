@@ -3,6 +3,7 @@ import { Sparkles, BookOpen, Clock, Tag, ArrowRight, Search, Share2 } from 'luci
 import { BlogPost, Language } from '../types';
 import { BLOG_POSTS } from '../data/astrologyData';
 import { CleanFormattedText } from '../utils/textUtils';
+import { SEOHead } from './SEOHead';
 
 interface BlogSectionProps {
   darkMode: boolean;
@@ -21,6 +22,37 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ darkMode }) => {
 
   return (
     <section id="blog" className="py-20 relative bg-[#050B18] text-white overflow-hidden">
+      {/* Dynamic SEO Head when reading post */}
+      {selectedPost && (
+        <SEOHead
+          title={`${selectedPost.title} | आचार्य राजन कैथवास (मंटू)`}
+          description={selectedPost.excerpt}
+          keywords={selectedPost.tags.join(', ')}
+          canonicalUrl={`/blog/${selectedPost.id}`}
+          ogImage={selectedPost.imageUrl}
+          ogType="article"
+          structuredData={{
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            'headline': selectedPost.title,
+            'description': selectedPost.excerpt,
+            'author': {
+              '@type': 'Person',
+              'name': selectedPost.author || 'आचार्य राजन कैथवास (मंटू)'
+            },
+            'publisher': {
+              '@type': 'Organization',
+              'name': 'राजन कैथवास (मंटू) - वैदिक ज्योतिष एवं आध्यात्मिक केंद्र',
+              'logo': {
+                '@type': 'ImageObject',
+                'url': 'https://rajankaithwas.com/rajan_kaithwas.svg'
+              }
+            },
+            'datePublished': selectedPost.date,
+            'image': selectedPost.imageUrl
+          }}
+        />
+      )}
       {/* Background Glow */}
       <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[140px] pointer-events-none" />
 

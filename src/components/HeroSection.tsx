@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calendar, MessageSquare, Phone, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, Calendar, MessageSquare, Phone, Compass, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { Language, HeroBannerData, RajanProfile, HomeBannerItem, HomeBannerSettings } from '../types';
 import { translations } from '../translations';
 
@@ -24,17 +24,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     id: 'rajan_profile_1',
     name: 'राजन कैथवास (मंटू)',
     designation: 'वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक',
-    short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
-    image_url: '/rajan_kaithwas.svg',
-    cloudinary_public_id: 'rajan_profile/default_avatar',
+    short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
+    image_url: '',
+    cloudinary_public_id: '',
     status: 'active',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   });
 
   const [heroData, setHeroData] = useState<HeroBannerData>({
-    secure_url: '/rajan_kaithwas.svg',
-    public_id: 'hero/rajan_kaithwas_main',
+    secure_url: '',
+    public_id: '',
     title: 'राजन कैथवास (मंटू)',
     subtitle: 'वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन',
     tagline: 'प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन',
@@ -54,15 +54,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const [offsetY, setOffsetY] = useState(0);
 
+  const [heroSectionImageUrl, setHeroSectionImageUrl] = useState<string>('');
+
   // Fetch Profile & Home Banners configuration from API
   const fetchProfileAndHero = async () => {
     try {
+      // Fetch Active Hero Section Image
+      const hsiRes = await fetch('/api/hero-section-images/active');
+      const hsiData = await hsiRes.json();
+      if (hsiData.success && hsiData.activeImage && hsiData.activeImage.image_url) {
+        const url = hsiData.activeImage.image_url;
+        setHeroSectionImageUrl(url.includes('/rajan_kaithwas.svg') ? '' : url);
+      } else {
+        setHeroSectionImageUrl('');
+      }
+
       // Fetch Rajan Profile
       const profRes = await fetch('/api/rajan-profile');
       const profData = await profRes.json();
       if (profData.success && profData.profile) {
         setRajanProfile(profData.profile);
       }
+
 
       // Fetch Home Banners
       const hbRes = await fetch('/api/home-banner?status=active');
@@ -132,9 +145,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
     window.addEventListener('rajanProfileUpdated', handleUpdateEvent);
     window.addEventListener('heroBannerUpdated', handleUpdateEvent);
+    window.addEventListener('heroSectionImageUpdated', handleUpdateEvent);
     return () => {
       window.removeEventListener('rajanProfileUpdated', handleUpdateEvent);
       window.removeEventListener('heroBannerUpdated', handleUpdateEvent);
+      window.removeEventListener('heroSectionImageUpdated', handleUpdateEvent);
     };
   }, [initialHeroBannerData]);
 
@@ -158,21 +173,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     return url;
   };
 
-  const optimizedHeroUrl = getOptimizedImageUrl(heroData.secure_url);
-  const optimizedProfileUrl = getOptimizedImageUrl(rajanProfile.image_url);
+  const rawHeroUrl = heroData.secure_url;
+  const effectiveHeroUrl = (rawHeroUrl && !rawHeroUrl.includes('/rajan_kaithwas.svg')) ? rawHeroUrl : '';
+  const optimizedHeroUrl = getOptimizedImageUrl(effectiveHeroUrl);
+
+  const rawProfileUrl = heroSectionImageUrl || rajanProfile.image_url;
+  const effectiveProfileUrl = (rawProfileUrl && !rawProfileUrl.includes('/rajan_kaithwas.svg')) ? rawProfileUrl : '';
+  const optimizedProfileUrl = getOptimizedImageUrl(effectiveProfileUrl);
 
   return (
     <section id="hero" className="relative min-h-[90vh] md:min-h-screen pt-28 sm:pt-36 pb-20 flex items-center overflow-hidden bg-[#050B18] text-white">
       {/* 1. Full-Width Hero Background Image with Cloudinary Optimization */}
-      <img
-        src={optimizedHeroUrl}
-        alt={rajanProfile.name || 'Rajan Kaithwas Ji Hero Banner'}
-        loading="lazy"
-        className="absolute inset-0 w-full h-full object-cover object-center z-0 transition-transform duration-200 ease-out scale-105 opacity-40"
-        style={{
-          transform: `translateY(${offsetY * 0.25}px) scale(1.05)`,
-        }}
-      />
+      {optimizedHeroUrl && (
+        <img
+          src={optimizedHeroUrl}
+          alt={rajanProfile.name || 'Rajan Kaithwas Ji Hero Banner'}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 transition-transform duration-200 ease-out scale-105 opacity-40"
+          style={{
+            transform: `translateY(${offsetY * 0.25}px) scale(1.05)`,
+          }}
+        />
+      )}
 
       {/* 2. Dark Gradient Overlay for Text Legibility */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#050B18]/95 via-[#050B18]/80 to-black/60 z-10" />
@@ -226,22 +248,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <polygon points="100,10 190,100 100,190 10,100" fill="none" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
 
-                {/* Rajan Kaithwas Ji Profile Image */}
-                <img
-                  src={optimizedProfileUrl || '/rajan_kaithwas.svg'}
-                  alt={rajanProfile.name || 'Rajan Kaithwas Ji'}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover rounded-full filter contrast-105 border-2 border-[#D4AF37]/60 relative z-10 shadow-2xl transition-transform duration-300 hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/rajan_kaithwas.svg';
-                  }}
-                />
+                {/* Rajan Kaithwas Ji Profile Image or Empty Placeholder Container */}
+                {optimizedProfileUrl ? (
+                  <img
+                    src={optimizedProfileUrl}
+                    alt={rajanProfile.name || 'Rajan Kaithwas Ji'}
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover rounded-full filter contrast-105 border-2 border-[#D4AF37]/60 relative z-10 shadow-2xl transition-transform duration-300 hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full border-2 border-dashed border-[#D4AF37]/40 bg-[#050B18]/90 flex flex-col items-center justify-center relative z-10 p-4 text-center space-y-1">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+                      <ImageIcon className="w-6 h-6 sm:w-7 sm:h-7 opacity-80" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-serif font-bold text-[#D4AF37]">हीरो इमेज स्थान</span>
+                    <span className="text-[10px] text-white/50">एडमिन पैनल से चित्र अपलोड करें</span>
+                  </div>
+                )}
 
                 {/* Floating Experience Badge */}
                 <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] font-bold px-4 py-2 rounded-2xl shadow-2xl text-xs sm:text-sm z-20 border border-[#D4AF37]">
                   <div className="text-center">
-                    <span className="text-base sm:text-lg block font-extrabold leading-none">25+ Yrs</span>
+                    <span className="text-base sm:text-lg block font-extrabold leading-none">33+ Yrs</span>
                     <span className="text-[10px] text-[#050B18] font-semibold uppercase tracking-wider">Vedic Master</span>
                   </div>
                 </div>
@@ -276,7 +305,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Short Introduction */}
             <p className="text-base sm:text-lg text-white/90 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed font-light drop-shadow">
-              {rajanProfile.short_bio || 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।'}
+              {rajanProfile.short_bio || 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।'}
             </p>
 
             {/* CTA Buttons Row */}
@@ -292,7 +321,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               {/* Button 2: WhatsApp */}
               <a
-                href="https://wa.me/919876543210?text=%E0%A4%B9%E0%A4%B0%E0%A4%BF%20%E0%A4%93%E0%A4%AE!%20%E0%A4%AE%E0%A5%88%E0%A4%82%20%E0%A4%86%E0%A4%9A%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%AF%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%A8%20%E0%A4%95%E0%A5%88%E0%A4%A5%E0%A4%B5%E0%A4%BE%E0%A4%B8%20%E0%A4%9C%E0%A5%80%20%E0%A4%B8%E0%A5%87%20%E0%A4%AA%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A4%B0%E0%A5%8D%E0%A4%B6%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%A8%E0%A4%BE%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%A4%E0%A4%BE%20%E0%A4%B9%E0%A5%82%E0%A4%82%E0%A4%B8%E0%A5%8D।"
+                href={`https://wa.me/91${(rajanProfile.whatsapp || '8319885134').replace(/\D/g, '')}?text=%E0%A4%B9%E0%A4%B0%E0%A4%BF%20%E0%A4%93%E0%A4%AE!%20%E0%A4%AE%E0%A5%88%E0%A4%82%20%E0%A4%86%E0%A4%9A%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%AF%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%A8%20%E0%A4%95%E0%A5%88%E0%A4%A5%E0%A4%B5%E0%A4%BE%E0%A4%B8%20%E0%A4%9C%E0%A5%80%20%E0%A4%B8%E0%A5%87%20%E0%A4%AA%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A4%B0%E0%A5%8D%E0%A4%B6%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%A8%E0%A4%BE%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%A4%E0%A4%BE%20%E0%A4%B9%E0%A5%82%E0%A4%82%E0%A4%B8%E0%A5%8D।`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3.5 border border-emerald-500/40 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full transition-all flex items-center gap-2 shadow-lg backdrop-blur-sm cursor-pointer"
@@ -303,7 +332,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               {/* Button 3: अभी कॉल करें */}
               <a
-                href="tel:+919876543210"
+                href={`tel:${rajanProfile.mobile || '8319885134'}`}
                 className="px-6 py-3.5 border border-[#D4AF37]/50 bg-[#050B18]/70 hover:bg-[#D4AF37]/20 text-[#D4AF37] text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full transition-all flex items-center gap-2 shadow-lg backdrop-blur-sm cursor-pointer"
               >
                 <Phone className="w-4 h-4 text-[#FF9933]" />
@@ -325,7 +354,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Experience Stats Row */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 border-t border-white/20 pt-6">
               <div className="flex flex-col text-center sm:text-left">
-                <span className="text-3xl font-serif text-white font-bold drop-shadow">25+</span>
+                <span className="text-3xl font-serif text-white font-bold drop-shadow">33+</span>
                 <span className="text-[10px] uppercase tracking-wider text-white/70">Years Experience</span>
               </div>
               <div className="w-[1px] h-10 bg-white/20 hidden sm:block"></div>
@@ -346,7 +375,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Bottom Glassmorphism Stats Banner */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-3xl bg-[#050B18]/60 backdrop-blur-xl border border-white/15 shadow-2xl">
           <div className="text-center p-2 border-r border-white/10 last:border-0">
-            <p className="text-2xl sm:text-3xl font-serif font-bold text-[#D4AF37]">25+ Years</p>
+            <p className="text-2xl sm:text-3xl font-serif font-bold text-[#D4AF37]">33+ Years</p>
             <p className="text-xs uppercase tracking-wider text-white/70 mt-1">Vedic Experience</p>
           </div>
           <div className="text-center p-2 border-r border-white/10 last:border-0">

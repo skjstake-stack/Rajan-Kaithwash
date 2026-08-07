@@ -3,6 +3,7 @@ import { CustomerManagementModule } from './CustomerManagementModule';
 import { BlogManagementModule } from './BlogManagementModule';
 import { GalleryManagementModule } from './GalleryManagementModule';
 import { HomeBannerManagementModule } from './HomeBannerManagementModule';
+import { HeroSectionImageAdminModule } from './HeroSectionImageAdminModule';
 import { RajanProfileAdminTab } from './RajanProfileAdminTab';
 import {
   LayoutDashboard,
@@ -74,6 +75,7 @@ export type TabType =
   | 'blog'
   | 'gallery'
   | 'home-banner'
+  | 'hero-section-image'
   | 'rajan-profile'
   | 'director-profile'
   | 'about-us'
@@ -93,6 +95,7 @@ const ALL_MODULE_CONFIG: { id: ModuleName; name: string; hindiName: string }[] =
   { id: 'bookings', name: 'Bookings', hindiName: 'परामर्श बुकिंग्स' },
   { id: 'customers', name: 'Customers', hindiName: 'ग्राहक / जातक' },
   { id: 'services', name: 'Services', hindiName: 'ज्योतिष सेवाएँ' },
+  { id: 'hero_section_image', name: 'Hero Section Image', hindiName: 'हीरो सेक्शन इमेज' },
   { id: 'blog', name: 'Blog', hindiName: 'ब्लॉग एवं लेख' },
   { id: 'gallery', name: 'Gallery', hindiName: 'गैलरी फोटो' },
   { id: 'home_banner', name: 'Home Banner', hindiName: 'होम बैनर' },
@@ -238,10 +241,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const [settings, setSettings] = useState({
     websiteName: 'राजन कैथवास (मंटू) - वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन',
-    contactPhone: '+91 9876543210',
+    helplineNumber: '8319885134',
+    whatsappNumber: '8319885134',
+    contactPhone: '8319885134',
     contactEmail: 'contact@rajankaithwas.com',
-    officeAddress: 'वाराणसी, उत्तर प्रदेश, भारत',
+    officeAddress: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+    pincode: '480447',
     noticeText: 'विशेष नवरात्री अनुष्ठान बुकिंग प्रारंभ है।',
+    seoTitle: 'राजन कैथवास (मंटू) | वैदिक ज्योतिष, जन्म कुंडली, वास्तु एवं हस्तरेखा - छिंदवाड़ा',
+    seoDescription: 'आचार्य राजन कैथवास (मंटू) जी द्वारा प्रामाणिक वैदिक ज्योतिष, जन्म कुंडली फलादेश, कुंडली मिलान, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष एवं सटीक रत्न परामर्श। छिंदवाड़ा, परासिया, छांदामेटा (मध्य प्रदेश)।',
+    seoKeywords: 'राजन कैथवास, मंटू, वैदिक ज्योतिष, जन्म कुंडली, कुंडली मिलान, विवाह ज्योतिष, करियर ज्योतिष, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष, रत्न परामर्श, छिंदवाड़ा ज्योतिष, परासिया ज्योतिष, Chhindwara Astrologer, Rajan Kaithwas Mantoo',
+    defaultOgImage: 'https://rajankaithwas.com/rajan_kaithwas.svg',
+    twitterImage: 'https://rajankaithwas.com/rajan_kaithwas.svg',
+    googleSearchConsoleCode: 'google-site-verification=rkj-astro-2026-verify-code',
+    googleAnalyticsId: 'G-RKJASTRO2026',
+    metaPixelId: '123456789012345',
+    sitemapEnabled: true,
+    robotsTxtContent: `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://rajankaithwas.com/sitemap.xml`,
   });
 
   // Global Media Delete Modal / Input
@@ -661,6 +677,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { id: 'blog', label: 'ब्लॉग एवं लेख (Blog)', icon: FileText, module: 'blog' as ModuleName },
     { id: 'gallery', label: 'गैलरी (Gallery)', icon: ImageIcon, module: 'gallery' as ModuleName },
     { id: 'home-banner', label: 'होम बैनर (Home Banner)', icon: Sliders, module: 'home_banner' as ModuleName },
+    { id: 'hero-section-image', label: 'हीरो सेक्शन इमेज (Hero Image)', icon: ImageIcon, module: 'hero_section_image' as ModuleName, badge: 'New' },
     { id: 'rajan-profile', label: 'राजन प्रोफाइल', icon: UserCheck, module: 'rajan_profile' as ModuleName },
     { id: 'director-profile', label: 'निदेशक प्रोफाइल', icon: User, module: 'director_profile' as ModuleName },
     { id: 'testimonials', label: 'प्रशंसापत्र (Testimonials)', icon: MessageSquare, module: 'testimonials' as ModuleName },
@@ -1120,6 +1137,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
+          {/* TAB: HERO SECTION IMAGE */}
+          {activeTab === 'hero-section-image' && (
+            <HeroSectionImageAdminModule
+              adminUser={adminUser}
+              token={token}
+              showToast={showToast}
+              hasPermission={hasPermission}
+            />
+          )}
+
           {/* TAB: RAJAN PROFILE */}
           {activeTab === 'rajan-profile' && (
             <RajanProfileAdminTab />
@@ -1240,22 +1267,137 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* TAB: WEBSITE SETTINGS */}
           {activeTab === 'website-settings' && (
             <div className="space-y-6">
-              <h2 className="text-xl font-serif font-bold text-[#D4AF37]">वेबसाइट सेटिंग्स (Settings)</h2>
-              <form onSubmit={handleSaveSettings} className="p-6 rounded-3xl bg-[#030712]/90 border border-white/10 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-white/70">वेबसाइट का नाम</label>
-                    <input type="text" value={settings.websiteName} onChange={(e) => setSettings({ ...settings, websiteName: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-white/70">संपर्क फोन नंबर</label>
-                    <input type="text" value={settings.contactPhone} onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" />
+              <h2 className="text-xl font-serif font-bold text-[#D4AF37]">वेबसाइट एवं सर्च इंजन (SEO) सेटिंग्स</h2>
+              
+              <form onSubmit={handleSaveSettings} className="space-y-6">
+                {/* 1. Basic Info & Contact */}
+                <div className="p-6 rounded-3xl bg-[#030712]/90 border border-white/10 space-y-4">
+                  <h3 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider border-b border-white/10 pb-2">1. मूल जानकारी एवं संपर्क केंद्र</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-white/70">वेबसाइट का नाम</label>
+                      <input type="text" value={settings.websiteName} onChange={(e) => setSettings({ ...settings, websiteName: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/70">हेल्पलाइन नंबर (Helpline Number)</label>
+                      <input type="text" value={settings.helplineNumber || ''} onChange={(e) => setSettings({ ...settings, helplineNumber: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="8319885134" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/70">व्हाट्सएप नंबर (WhatsApp Number)</label>
+                      <input type="text" value={settings.whatsappNumber || ''} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="8319885134" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/70">संपर्क नंबर (Contact Number)</label>
+                      <input type="text" value={settings.contactPhone || ''} onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="8319885134" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/70">आधिकारिक ईमेल (Email)</label>
+                      <input type="text" value={settings.contactEmail || ''} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="contact@rajankaithwas.com" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/70">पिनकोड (Pincode)</label>
+                      <input type="text" value={settings.pincode || ''} onChange={(e) => setSettings({ ...settings, pincode: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="480447" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-xs text-white/70">कार्यालय पता (Office Address)</label>
+                      <textarea rows={2} value={settings.officeAddress || ''} onChange={(e) => setSettings({ ...settings, officeAddress: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India" />
+                    </div>
                   </div>
                 </div>
+
+                {/* 2. SEO & Meta Management */}
+                <div className="p-6 rounded-3xl bg-[#030712]/90 border border-white/10 space-y-4">
+                  <h3 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider border-b border-white/10 pb-2">2. गूगल सर्च इंजन ऑप्टिमाइजेशन (Google SEO & Social Meta)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="text-xs text-white/70 font-semibold">मुख्य मेटा शीर्षक (Website Title / SEO Title)</label>
+                      <input type="text" value={settings.seoTitle || ''} onChange={(e) => setSettings({ ...settings, seoTitle: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="राजन कैथवास (मंटू) | वैदिक ज्योतिष, जन्म कुंडली, वास्तु एवं हस्तरेखा - छिंदवाड़ा" />
+                      <p className="text-[10px] text-white/40 mt-1">Google सर्च में दिखने वाला मुख्य शीर्षक (50-60 वर्ण उत्तम)।</p>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="text-xs text-white/70 font-semibold">मेटा विवरण (Meta Description)</label>
+                      <textarea rows={3} value={settings.seoDescription || ''} onChange={(e) => setSettings({ ...settings, seoDescription: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="आचार्य राजन कैथवास (मंटू) जी द्वारा प्रामाणिक वैदिक ज्योतिष..." />
+                      <p className="text-[10px] text-white/40 mt-1">Google सर्च परिणामों में आपके नाम के नीचे आने वाला संक्षिप्त विवरण (150-160 वर्ण)।</p>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="text-xs text-white/70 font-semibold">SEO कीवर्ड्स (Meta Keywords - कॉमा द्वारा विभाजित)</label>
+                      <input type="text" value={settings.seoKeywords || ''} onChange={(e) => setSettings({ ...settings, seoKeywords: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="राजन कैथवास, मंटू, वैदिक ज्योतिष, जन्म कुंडली, Chhindwara Astrologer" />
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold">डिफ़ॉल्ट Open Graph छवि URL (Default OG Image)</label>
+                      <input type="text" value={settings.defaultOgImage || ''} onChange={(e) => setSettings({ ...settings, defaultOgImage: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="https://rajankaithwas.com/rajan_kaithwas.svg" />
+                      <p className="text-[10px] text-white/40 mt-1">WhatsApp/Facebook पर लिंक शेयर करने पर दिखने वाली फोटो।</p>
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold">Twitter/X कार्ड इमेज URL (Twitter Image)</label>
+                      <input type="text" value={settings.twitterImage || ''} onChange={(e) => setSettings({ ...settings, twitterImage: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="https://rajankaithwas.com/rajan_kaithwas.svg" />
+                      <p className="text-[10px] text-white/40 mt-1">Twitter/X पर कार्ड के लिए इमेज।</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Search Console & Webmasters Integrations */}
+                <div className="p-6 rounded-3xl bg-[#030712]/90 border border-white/10 space-y-4">
+                  <h3 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider border-b border-white/10 pb-2">3. Google Search Console एवं विश्लेषिकी (Analytics & Verification)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold">Google Search Console सत्यापन कोड</label>
+                      <input type="text" value={settings.googleSearchConsoleCode || ''} onChange={(e) => setSettings({ ...settings, googleSearchConsoleCode: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="google-site-verification=xxxx" />
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold">Google Analytics Tracking ID (GA4)</label>
+                      <input type="text" value={settings.googleAnalyticsId || ''} onChange={(e) => setSettings({ ...settings, googleAnalyticsId: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="G-RKJASTRO2026" />
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold">Meta Pixel ID (Facebook Ads)</label>
+                      <input type="text" value={settings.metaPixelId || ''} onChange={(e) => setSettings({ ...settings, metaPixelId: e.target.value })} className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white mt-1" placeholder="123456789012345" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Sitemap & Robots.txt Directives */}
+                <div className="p-6 rounded-3xl bg-[#030712]/90 border border-white/10 space-y-4">
+                  <h3 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider border-b border-white/10 pb-2">4. एक्सएमएल साइटमैप (Sitemap) एवं Robots.txt डायरेक्टिव्स</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="sitemapEnabled"
+                        checked={!!settings.sitemapEnabled}
+                        onChange={(e) => setSettings({ ...settings, sitemapEnabled: e.target.checked })}
+                        className="w-4 h-4 accent-[#D4AF37]"
+                      />
+                      <label htmlFor="sitemapEnabled" className="text-xs text-white font-medium cursor-pointer">
+                        स्वाचालित XML साइटमैप सक्रिय रखें (<span className="text-emerald-400 font-mono">/sitemap.xml</span>)
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-white/70 font-semibold block mb-1">Robots.txt कंटेंट डायरेक्टिव्स</label>
+                      <textarea
+                        rows={4}
+                        value={settings.robotsTxtContent || ''}
+                        onChange={(e) => setSettings({ ...settings, robotsTxtContent: e.target.value })}
+                        className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white font-mono"
+                        placeholder="User-agent: *&#10;Allow: /&#10;Disallow: /admin/"
+                      />
+                      <p className="text-[10px] text-white/40 mt-1">गूगल बॉट तथा अन्य सर्च इंजन स्पाइडर्स हेतु निर्देश (<span className="text-emerald-400 font-mono">/robots.txt</span>)।</p>
+                    </div>
+                  </div>
+                </div>
+
                 {hasPermission('website_settings', 'manage_settings') && (
-                  <button type="submit" className="px-6 py-3 bg-[#D4AF37] text-[#050B18] font-bold text-xs rounded-xl uppercase cursor-pointer">
-                    सहेजें (Save Settings)
-                  </button>
+                  <div className="pt-2">
+                    <button type="submit" className="px-8 py-3.5 bg-[#D4AF37] hover:bg-[#b89428] text-[#050B18] font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer transition-all shadow-lg">
+                      SEO एवं वेबसाइट सेटिंग्स सहेजें (Save All SEO Settings)
+                    </button>
+                  </div>
                 )}
               </form>
             </div>

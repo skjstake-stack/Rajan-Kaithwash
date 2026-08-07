@@ -323,6 +323,255 @@ app.put('/api/hero', (req, res) => {
 });
 
 // ==========================================
+// DYNAMIC HERO SECTION IMAGES (hero_section_images) APIs
+// ==========================================
+
+interface HeroSectionImageItem {
+  id: string;
+  image_url: string;
+  cloudinary_public_id: string;
+  status: 'active' | 'disabled';
+  created_at: string;
+  updated_at: string;
+}
+
+let heroSectionImagesDatabase: HeroSectionImageItem[] = [];
+
+// Helper to get active hero section image
+function getActiveHeroSectionImage(): HeroSectionImageItem | null {
+  const activeItem = heroSectionImagesDatabase.find((img) => img.status === 'active');
+  if (activeItem) return activeItem;
+  if (heroSectionImagesDatabase.length > 0) return heroSectionImagesDatabase[0];
+  return null;
+}
+
+// 1. Get all Hero Section Images
+app.get('/api/hero-section-images', (req, res) => {
+  return res.json({
+    success: true,
+    images: heroSectionImagesDatabase,
+    activeImage: getActiveHeroSectionImage(),
+  });
+});
+
+// 2. Get Active Hero Section Image
+app.get('/api/hero-section-images/active', (req, res) => {
+  return res.json({
+    success: true,
+    activeImage: getActiveHeroSectionImage(),
+  });
+});
+
+// 3. Upload new Hero Section Image to folder 'hero_section/'
+app.post('/api/hero-section-images/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
+    const { status = 'active' } = req.body;
+
+    if (!file) {
+      return res.status(400).json({ error: 'No image file provided.' });
+    }
+
+    const isCloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+    let newSecureUrl = '';
+    let newPublicId = '';
+
+    if (isCloudinaryConfigured) {
+      const uploadResult: any = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'hero_section',
+            resource_type: 'image',
+            transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(file.buffer);
+      });
+      newSecureUrl = uploadResult.secure_url;
+      newPublicId = uploadResult.public_id;
+    } else {
+      newSecureUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      newPublicId = `hero_section/hero_${Date.now()}`;
+    }
+
+    // If new image is active, set other existing images to disabled
+    if (status === 'active') {
+      heroSectionImagesDatabase.forEach((img) => {
+        img.status = 'disabled';
+      });
+    }
+
+    const newRecord: HeroSectionImageItem = {
+      id: 'hsi-' + Date.now(),
+      image_url: newSecureUrl,
+      cloudinary_public_id: newPublicId,
+      status: status === 'disabled' ? 'disabled' : 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    heroSectionImagesDatabase.unshift(newRecord);
+
+    return res.json({
+      success: true,
+      message: 'Hero Section image uploaded directly to Cloudinary (hero_section/) and saved successfully!',
+      image: newRecord,
+      activeImage: getActiveHeroSectionImage(),
+    });
+  } catch (error: any) {
+    console.error('Hero Section Image Upload Error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to upload hero image.' });
+  }
+});
+
+// 4. Replace existing Hero Section Image
+app.post('/api/hero-section-images/:id/replace', upload.single('file'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: 'No replacement image file provided.' });
+    }
+
+    const itemIndex = heroSectionImagesDatabase.findIndex((item) => String(item.id) === String(id));
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: 'Hero image record not found.' });
+    }
+
+    const targetItem = heroSectionImagesDatabase[itemIndex];
+    const isCloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+
+    // Delete old Cloudinary asset if configured and not default
+    if (isCloudinaryConfigured && targetItem.cloudinary_public_id && !targetItem.cloudinary_public_id.includes('rajan_kaithwas_main')) {
+      try {
+        await cloudinary.uploader.destroy(targetItem.cloudinary_public_id);
+        console.log(`Destroyed old Cloudinary asset: ${targetItem.cloudinary_public_id}`);
+      } catch (destroyErr: any) {
+        console.warn('Notice: Could not destroy old hero asset:', destroyErr.message);
+      }
+    }
+
+    let newSecureUrl = '';
+    let newPublicId = '';
+
+    if (isCloudinaryConfigured) {
+      const uploadResult: any = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'hero_section',
+            resource_type: 'image',
+            transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(file.buffer);
+      });
+      newSecureUrl = uploadResult.secure_url;
+      newPublicId = uploadResult.public_id;
+    } else {
+      newSecureUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      newPublicId = `hero_section/hero_${Date.now()}`;
+    }
+
+    // Update item
+    targetItem.image_url = newSecureUrl;
+    targetItem.cloudinary_public_id = newPublicId;
+    targetItem.updated_at = new Date().toISOString();
+
+    heroSectionImagesDatabase[itemIndex] = targetItem;
+
+    return res.json({
+      success: true,
+      message: 'Hero image replaced and old Cloudinary asset deleted successfully!',
+      image: targetItem,
+      activeImage: getActiveHeroSectionImage(),
+    });
+  } catch (error: any) {
+    console.error('Hero Image Replace Error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to replace hero image.' });
+  }
+});
+
+// 5. Update Status (Enable / Disable)
+app.put('/api/hero-section-images/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const itemIndex = heroSectionImagesDatabase.findIndex((item) => String(item.id) === String(id));
+  if (itemIndex === -1) {
+    return res.status(404).json({ error: 'Hero image record not found.' });
+  }
+
+  if (status === 'active') {
+    // Disable all others
+    heroSectionImagesDatabase.forEach((img) => {
+      img.status = 'disabled';
+    });
+  }
+
+  heroSectionImagesDatabase[itemIndex].status = status === 'active' ? 'active' : 'disabled';
+  heroSectionImagesDatabase[itemIndex].updated_at = new Date().toISOString();
+
+  return res.json({
+    success: true,
+    message: `Hero image status updated to ${heroSectionImagesDatabase[itemIndex].status}`,
+    image: heroSectionImagesDatabase[itemIndex],
+    activeImage: getActiveHeroSectionImage(),
+  });
+});
+
+// 6. Delete Hero Section Image
+app.delete('/api/hero-section-images/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const itemIndex = heroSectionImagesDatabase.findIndex((item) => String(item.id) === String(id));
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: 'Hero image record not found.' });
+    }
+
+    const targetItem = heroSectionImagesDatabase[itemIndex];
+    const isCloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+
+    // Destroy Cloudinary asset
+    if (isCloudinaryConfigured && targetItem.cloudinary_public_id && !targetItem.cloudinary_public_id.includes('rajan_kaithwas_main')) {
+      try {
+        await cloudinary.uploader.destroy(targetItem.cloudinary_public_id);
+        console.log(`Destroyed Cloudinary asset upon deletion: ${targetItem.cloudinary_public_id}`);
+      } catch (destroyErr: any) {
+        console.warn('Notice: Could not destroy asset from Cloudinary:', destroyErr.message);
+      }
+    }
+
+    const wasActive = targetItem.status === 'active';
+    heroSectionImagesDatabase.splice(itemIndex, 1);
+
+    // If deleted item was active and items remain, make the first remaining item active
+    if (wasActive && heroSectionImagesDatabase.length > 0) {
+      heroSectionImagesDatabase[0].status = 'active';
+    }
+
+    return res.json({
+      success: true,
+      message: 'Hero image deleted from database and Cloudinary successfully!',
+      activeImage: getActiveHeroSectionImage(),
+    });
+  } catch (error: any) {
+    console.error('Delete Hero Image Error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to delete hero image.' });
+  }
+});
+
+
+// ==========================================
 // RAJAN KAITHWAS JI PROFILE APIs
 // ==========================================
 
@@ -582,7 +831,7 @@ app.post('/api/ai/horoscope', async (req, res) => {
     const { sign, timeframe = 'daily', name, lang = 'hi' } = req.body;
     const ai = getGeminiClient();
 
-    const prompt = `You are Rajan Kaithwas Ji, an internationally renowned Vedic Astrologer with 25+ years of experience.
+    const prompt = `You are Rajan Kaithwas Ji, an internationally renowned Vedic Astrologer with 33+ years of experience.
 Generate a highly detailed, deeply insightful Vedic Astrology Horoscope for:
 Zodiac Sign: ${sign}
 Timeframe: ${timeframe} (daily/monthly/yearly)
@@ -625,6 +874,20 @@ app.post('/api/ai/kundli', async (req, res) => {
     const { name, dob, tob, pob, gender, lang = 'hi' } = req.body;
     const ai = getGeminiClient();
 
+    const languageNames: Record<string, string> = {
+      hi: 'Hindi (हिंदी)',
+      en: 'English',
+      gu: 'Gujarati (ગુજરાતી)',
+      mr: 'Marathi (मराठी)',
+      ta: 'Tamil (தமிழ்)',
+      te: 'Telugu (తెలుగు)',
+      pa: 'Punjabi (ਪੰਜਾਬੀ)',
+      bn: 'Bengali (বাংলা)',
+      ur: 'Urdu (اردو)',
+    };
+
+    const targetLangName = languageNames[lang] || 'Hindi (हिंदी)';
+
     const prompt = `You are Rajan Kaithwas Ji, Master of Vedic Jyotish Shastra.
 Generate a comprehensive, authentic Janam Kundli (Birth Chart) calculation and interpretation for:
 Name: ${name}
@@ -632,7 +895,7 @@ Date of Birth: ${dob}
 Time of Birth: ${tob}
 Place of Birth: ${pob}
 Gender: ${gender}
-Language: ${lang}
+Target Output Language: ${targetLangName}
 
 Please provide:
 1. Calculated Lagna (Ascendant) Rashi & Moon Sign (Chandra Rashi)
@@ -644,10 +907,12 @@ Please provide:
 7. Tailored Astrological Remedies (Specific Vedic Mantras, Gemstone suggestions with carat/metal/finger, and Daan/Charity).
 
 Expressed with authentic Vedic terminology and Rajan Kaithwas Ji's blessing.
-CRITICAL FORMATTING RULES:
+CRITICAL LANGUAGE & NUMERICAL FORMATTING RULES:
+- Write the ENTIRE analysis, titles, planet names, house details, nakshatras, dashas, yogas, and remedies strictly in ${targetLangName}.
+- ALWAYS write all numbers (dates, times, house numbers, degrees, percentages, age, counts) using standard English numerals (0, 1, 2, 3, 4, 5, 6, 7, 8, 9). Do NOT use Devanagari or regional script digits under any circumstances.
+- Example format for numbers: " जन्म तिथि: 15 अगस्त 1990", "जन्म समय: 10:30 AM".
 - Do NOT use any Markdown syntax under any circumstances (NO asterisks **, NO hashes ##, NO underscores __, NO backticks \`, NO hyphens - at line start, NO greater-than >).
-- Use plain text line breaks and standard numbered headings.
-- Always write all numbers using standard English digits (0-9).`;
+- Use plain text line breaks and standard numbered headings.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.6-flash',
@@ -858,10 +1123,10 @@ app.post('/api/bookings', (req, res) => {
 
     if (consultationType === 'audio' || consultationType === 'whatsapp') {
       platform = 'whatsapp';
-      meetingLink = `https://wa.me/919876543210?text=Booking%20Ref:%20${bookingRef}`;
+      meetingLink = `https://wa.me/918319885134?text=Booking%20Ref:%20${bookingRef}`;
     } else if (consultationType === 'in_person') {
       platform = 'office';
-      meetingLink = 'Rajan Kaithwas Ji Spiritual Center, Sector 18, Noida, NCR Delhi, India';
+      meetingLink = 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh 480447';
     }
 
     const newBooking: BookingItem = {
@@ -2604,14 +2869,14 @@ let homeBannersDatabase: HomeBannerServerItem[] = [
     id: 'hb-1',
     title: 'राजन कैथवास (मंटू)',
     subtitle: 'वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक',
-    description: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक।',
+    description: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
     hero_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=1600&q=80',
     mobile_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=800&q=80',
     cloudinary_public_id: 'hero/rajan_kaithwas_main_banner',
     button_text: 'परामर्श बुक करें',
     button_url: '#booking',
     second_button_text: 'WhatsApp परामर्श',
-    second_button_url: 'https://wa.me/919876543210',
+    second_button_url: 'https://wa.me/918319885134',
     status: 'active',
     display_order: 1,
     start_date: '2026-01-01',
@@ -2633,7 +2898,7 @@ let homeBannersDatabase: HomeBannerServerItem[] = [
     button_text: 'पूजा संकल्प लें',
     button_url: '#services',
     second_button_text: 'कॉल करें',
-    second_button_url: 'tel:+919876543210',
+    second_button_url: 'tel:8319885134',
     status: 'scheduled',
     display_order: 2,
     start_date: '2026-08-10',
@@ -2990,33 +3255,35 @@ let rajanProfileDatabase: any = {
   full_name: 'पं. राजन कैथवास (मंटू)',
   display_name: 'राजन कैथवास (मंटू)',
   designation: 'अंतरराष्ट्रीय ख्याति प्राप्त वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक',
-  short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
-  biography: `राजन कैथवास (मंटू) 25 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर ख्याति प्राप्त वैदिक ज्योतिषाचार्य, वास्तु विशेषज्ञ एवं आध्यात्मिक मार्गदर्शक हैं। महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित उनकी सटीक भविष्यवाणियों से विश्व भर के 50,000 से अधिक जातक लाभान्वित हो चुके हैं।
+  short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
+  biography: `राजन कैथवास (मंटू) 33 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर ख्याति प्राप्त वैदिक ज्योतिषाचार्य, वास्तु विशेषज्ञ एवं आध्यात्मिक मार्गदर्शक हैं। महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित उनकी सटीक भविष्यवाणियों से विश्व भर के 50,000 से अधिक जातक लाभान्वित हो चुके हैं।
 
 भ्रमित करने वाले पारंपरिक उपायों के स्थान पर राजन कैथवास (मंटू) प्रामाणिक ग्रह नक्षत्र गणना, सटीक जन्मकुंडली विश्लेषण एवं अत्यंत सरल सात्विक उपायों (मंत्र, यंत्र, रत्न एवं दान) द्वारा जीवन की जटिल से जटिल समस्याओं का स्थायी समाधान प्रदान करते हैं।`,
-  experience: '25+ वर्ष',
+  experience: '33+ वर्ष',
   qualification: 'ज्योतिष भास्कर, वैदिक शास्त्री, वास्तु विशारद (स्वर्ण पदक विजेता)',
   specialization: 'जन्मकुण्डली फलादेश, मांगलिक दोष निवारण, कालसर्प दोष शांति, वास्तु दोष निवारण, रत्न एवं रुद्राक्ष परामर्श',
   languages: 'हिंदी, संस्कृत, अंग्रेजी',
-  mobile: '+91 98765 43210',
-  whatsapp: '+91 98765 43210',
+  mobile: '8319885134',
+  whatsapp: '8319885134',
+  helpline: '8319885134',
   email: 'contact@rajankaithwas.com',
   website: 'https://rajankaithwas.com',
-  office_address: 'राजन कैथवास (मंटू) आध्यात्मिक केंद्र, सेक्टर 18, नोएडा, एनसीआर दिल्ली, भारत',
-  google_map: 'https://maps.google.com/?q=Noida+Sector+18',
+  office_address: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+  pincode: '480447',
+  google_map: 'https://maps.google.com/?q=Chhindwara+Madhya+Pradesh+480447',
   facebook: 'https://facebook.com/rajankaithwas.official',
   instagram: 'https://instagram.com/rajankaithwas.official',
   youtube: 'https://youtube.com/@rajankaithwasjyotish',
   linkedin: 'https://linkedin.com/in/rajankaithwas',
   twitter: 'https://x.com/rajankaithwas',
   awards: 'ज्योतिष रत्न स्वर्ण पदक विजेता 2024 (अखिल भारतीय ज्योतिष संघ), वैश्विक वैदिक उत्कृष्टता सम्मान (अंतर्राष्ट्रीय वैदिक सम्मेलन, यूके), वास्तु सम्राट सम्मान (वास्तु अनुसंधान संस्थान)',
-  achievements: '50,000+ संतुष्ट जातक, 25+ वर्षों का अनुभव, 100+ राष्ट्रीय व अंतर्राष्ट्रीय सेमिनार संबोधन, 10,000+ कुंडली समाधान',
+  achievements: '50,000+ संतुष्ट जातक, 33+ वर्षों का अनुभव, 100+ राष्ट्रीय व अंतर्राष्ट्रीय सेमिनार संबोधन, 10,000+ कुंडली समाधान',
   publications: 'वैदिक ज्योतिष सिद्धान्त (पुस्तक), दैनिक समाचार पत्रों में नियमित स्तंभ लेखन, गोचर फलिका शोध पत्र',
   memberships: 'अखिल भारतीय ज्योतिष अनुसंधान परिषद (आजीवन सदस्य), अंतर्राष्ट्रीय वैदिक महासंघ (वरिष्ठ सलाहकार)',
   mission: 'प्राचीन वैदिक ज्ञान के माध्यम से भयमुक्त, समृद्ध एवं धर्ममय जीवन जीने का सही मार्ग दिखाना।',
   vision: 'शुद्ध वैदिक ज्योतिषीय मार्गदर्शन को आधुनिक तकनीक द्वारा पूरे विश्व में सुलभ बनाना।',
-  profile_image_url: '/rajan_kaithwas.svg',
-  cloudinary_public_id: 'rajan_profile/rajan_kaithwas_main',
+  profile_image_url: '',
+  cloudinary_public_id: '',
   status: 'active',
   views: 12500,
   created_at: new Date('2025-01-01').toISOString(),
@@ -3825,23 +4092,31 @@ app.post('/api/notifications/broadcast', (req, res) => {
 });
 
 // ==========================================
-// 14. WEBSITE SETTINGS APIs
+// 14. WEBSITE SETTINGS & SEO APIs
 // ==========================================
 let websiteSettingsDatabase = {
   websiteName: 'राजन कैथवास (मंटू) - वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन',
   logoUrl: '/rajan_kaithwas.svg',
   faviconUrl: '/favicon.ico',
-  contactPhone: '+91 98765 43210',
-  whatsappNumber: '+91 98765 43210',
+  helplineNumber: '8319885134',
+  whatsappNumber: '8319885134',
+  contactPhone: '8319885134',
   contactEmail: 'contact@rajankaithwas.com',
-  address: 'Rajan Kaithwas (Mantoo) Ji Spiritual Center, Sector 18, Noida, NCR Delhi, India',
+  officeAddress: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+  pincode: '480447',
   facebook: 'https://facebook.com/rajankaithwas.official',
   instagram: 'https://instagram.com/rajankaithwas.official',
   youtube: 'https://youtube.com/@rajankaithwasjyotish',
-  seoTitle: 'Rajan Kaithwas (Mantoo) Ji - Internationally Acclaimed Vedic Astrologer',
-  seoKeywords: 'Vedic Astrology, Janam Kundli, Marriage Matching, Vastu Shastra, Gemstones, Noida Astrologer',
+  seoTitle: 'राजन कैथवास (मंटू) | वैदिक ज्योतिष, जन्म कुंडली, वास्तु एवं हस्तरेखा - छिंदवाड़ा',
+  seoDescription: 'आचार्य राजन कैथवास (मंटू) जी द्वारा प्रामाणिक वैदिक ज्योतिष, जन्म कुंडली फलादेश, कुंडली मिलान, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष एवं सटीक रत्न परामर्श। छिंदवाड़ा, परासिया, छांदामेटा (मध्य प्रदेश)।',
+  seoKeywords: 'राजन कैथवास, मंटू, वैदिक ज्योतिष, जन्म कुंडली, कुंडली मिलान, विवाह ज्योतिष, करियर ज्योतिष, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष, रत्न परामर्श, छिंदवाड़ा ज्योतिष, परासिया ज्योतिष, Chhindwara Astrologer, Rajan Kaithwas Mantoo',
+  defaultOgImage: 'https://rajankaithwas.com/rajan_kaithwas.svg',
+  twitterImage: 'https://rajankaithwas.com/rajan_kaithwas.svg',
+  googleSearchConsoleCode: 'google-site-verification=rkj-astro-2026-verify-code',
   googleAnalyticsId: 'G-RKJASTRO2026',
   metaPixelId: '123456789012345',
+  sitemapEnabled: true,
+  robotsTxtContent: `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://rajankaithwas.com/sitemap.xml`,
   maintenanceMode: false,
 };
 
@@ -3849,8 +4124,84 @@ app.get('/api/settings', (req, res) => res.json({ success: true, settings: websi
 
 app.put('/api/settings', (req, res) => {
   websiteSettingsDatabase = { ...websiteSettingsDatabase, ...req.body };
-  return res.json({ success: true, settings: websiteSettingsDatabase, message: 'वेबसाइट सेटिंग्स सफलतापूर्वक अपडेट हो गईं!' });
+  return res.json({ success: true, settings: websiteSettingsDatabase, message: 'वेबसाइट सेटिंग्स एवं SEO सेटिंग्स सफलतापूर्वक अपडेट हो गईं!' });
 });
+
+// Dynamic XML Sitemap for Google Search Console & Search Engines
+app.get('/sitemap.xml', (req, res) => {
+  if (!websiteSettingsDatabase.sitemapEnabled) {
+    return res.status(404).send('Sitemap is disabled in settings.');
+  }
+
+  const host = req.protocol + '://' + (req.get('host') || 'rajankaithwas.com');
+  const today = new Date().toISOString().split('T')[0];
+
+  const staticRoutes = [
+    { url: '/', priority: '1.0', changefreq: 'daily' },
+    { url: '/kundli', priority: '0.9', changefreq: 'daily' },
+    { url: '/about', priority: '0.8', changefreq: 'monthly' },
+    { url: '/contact', priority: '0.9', changefreq: 'monthly' },
+    { url: '/blog', priority: '0.8', changefreq: 'daily' },
+    { url: '/services/janam-kundli', priority: '0.9', changefreq: 'weekly' },
+    { url: '/services/kundli-milan', priority: '0.9', changefreq: 'weekly' },
+    { url: '/services/vivah-jyotish', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/career-jyotish', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/vyapar-jyotish', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/dhan-vitt-jyotish', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/vastu-paramarsh', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/hastrekha', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/ank-jyotish', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/ratna-paramarsh', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/muhurat', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/prashna-kundli', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/varshik-rashifal', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/masik-rashifal', priority: '0.8', changefreq: 'weekly' },
+    { url: '/services/dainik-rashifal', priority: '0.8', changefreq: 'daily' },
+  ];
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+  staticRoutes.forEach((route) => {
+    xml += `  <url>\n`;
+    xml += `    <loc>${host}${route.url}</loc>\n`;
+    xml += `    <lastmod>${today}</lastmod>\n`;
+    xml += `    <changefreq>${route.changefreq}</changefreq>\n`;
+    xml += `    <priority>${route.priority}</priority>\n`;
+    xml += `  </url>\n`;
+  });
+
+  // Dynamic Blog Posts in Sitemap
+  if (Array.isArray(blogDatabase)) {
+    blogDatabase.forEach((blog) => {
+      const slug = blog.slug || blog.id;
+      const lastMod = blog.publish_date ? blog.publish_date.split('T')[0] : today;
+      xml += `  <url>\n`;
+      xml += `    <loc>${host}/blog/${slug}</loc>\n`;
+      xml += `    <lastmod>${lastMod}</lastmod>\n`;
+      xml += `    <changefreq>monthly</changefreq>\n`;
+      xml += `    <priority>0.7</priority>\n`;
+      xml += `  </url>\n`;
+    });
+  }
+
+  xml += `</urlset>`;
+
+  res.header('Content-Type', 'application/xml');
+  return res.send(xml);
+});
+
+// Dynamic robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.header('Content-Type', 'text/plain');
+  if (websiteSettingsDatabase.robotsTxtContent) {
+    return res.send(websiteSettingsDatabase.robotsTxtContent);
+  }
+  const host = req.protocol + '://' + (req.get('host') || 'rajankaithwas.com');
+  const defaultRobots = `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: ${host}/sitemap.xml`;
+  return res.send(defaultRobots);
+});
+
 
 // Health Endpoint
 app.get('/api/health', (req, res) => {

@@ -31,6 +31,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
+  // Hidden Admin Login Click Counter Refs
+  const clickCountRef = React.useRef<number>(0);
+  const clickTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   const t = translations[currentLang];
   const handleLanguageSelect = (lang: Language) => {
     if (onLanguageChange) onLanguageChange(lang);
@@ -42,8 +46,64 @@ export const Navbar: React.FC<NavbarProps> = ({
       setScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    };
   }, []);
+
+  // Reset counter when activeSection changes or view navigates
+  useEffect(() => {
+    clickCountRef.current = 0;
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+  }, [activeSection]);
+
+  // Hidden Admin Trigger on Logo Click
+  const [contactInfo, setContactInfo] = useState({ helpline: '8319885134', whatsapp: '8319885134' });
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setContactInfo({
+            helpline: data.settings.helplineNumber || data.settings.contactPhone || '8319885134',
+            whatsapp: data.settings.whatsappNumber || '8319885134',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleLogoClick = () => {
+    // 1. Preserve standard logo navigation (scroll to hero / homepage)
+    handleNavClick('hero');
+
+    // 2. Count consecutive rapid clicks
+    clickCountRef.current += 1;
+
+    // Start 3-second countdown on the 1st click
+    if (clickCountRef.current === 1) {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = setTimeout(() => {
+        clickCountRef.current = 0;
+        clickTimerRef.current = null;
+      }, 3000);
+    }
+
+    // On 5th click within 3 seconds -> open Admin Login
+    if (clickCountRef.current >= 5) {
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+      }
+      clickCountRef.current = 0;
+      onOpenAdmin();
+    }
+  };
 
   const navLinks = [
     { id: 'hero', label: t.home || 'Home' },
@@ -85,27 +145,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="text-white/60 tracking-wider">आई.एस.ओ. 9001:2015 प्रमाणित वैदिक संस्थान</span>
         </div>
         <div className="flex items-center space-x-5">
-          <a href="tel:+919876543210" className="flex items-center hover:text-[#D4AF37] transition-colors">
+          <a href={`tel:${contactInfo.helpline}`} className="flex items-center hover:text-[#D4AF37] transition-colors">
             <Phone className="w-3 h-3 mr-1 text-[#D4AF37]" />
-            +91 98765 43210
+            Helpline: {contactInfo.helpline}
           </a>
           <a
-            href="https://wa.me/919876543210"
+            href={`https://wa.me/91${contactInfo.whatsapp.replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center hover:text-[#D4AF37] transition-colors"
           >
             <MessageSquare className="w-3 h-3 mr-1 text-emerald-400" />
-            WhatsApp
+            WhatsApp: {contactInfo.whatsapp}
           </a>
-          <button
-            onClick={onOpenAdmin}
-            className="flex items-center text-[#D4AF37] hover:text-white text-[11px] uppercase tracking-wider font-semibold px-3 py-1 rounded-full border border-[#D4AF37]/50 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/25 transition-all shadow-[0_0_10px_rgba(212,175,55,0.2)] cursor-pointer"
-          >
-            <Shield className="w-3 h-3 mr-1 text-[#D4AF37]" />
-            <Lock className="w-2.5 h-2.5 mr-1 text-[#FF9933]" />
-            Admin Login
-          </button>
         </div>
 
       </div>
@@ -113,10 +165,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Brand Logo */}
+          {/* Brand Logo - Floating Hidden Admin Trigger (5 consecutive clicks within 3s) */}
           <div
-            onClick={() => handleNavClick('hero')}
-            className="flex items-center space-x-3 cursor-pointer group"
+            onClick={handleLogoClick}
+            className="flex items-center space-x-3 cursor-pointer group select-none"
+            style={{ touchAction: 'manipulation' }}
           >
             <div className="relative flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-tr from-[#D4AF37] via-[#B8860B] to-[#FF9933] p-0.5 shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-[#050B18] rounded-full flex items-center justify-center">
@@ -203,17 +256,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               {darkMode ? <Sun className="w-4 h-4 text-[#D4AF37]" /> : <Moon className="w-4 h-4 text-white" />}
             </button>
 
-            {/* Admin Login Button */}
-            <button
-              onClick={onOpenAdmin}
-              className="px-3.5 py-1.5 rounded-full border border-[#D4AF37]/60 bg-gradient-to-r from-[#D4AF37]/15 to-[#B8860B]/15 text-[#D4AF37] hover:text-white text-xs font-semibold tracking-wide flex items-center gap-1.5 shadow-[0_0_12px_rgba(212,175,55,0.2)] hover:border-[#D4AF37] hover:scale-105 transition-all cursor-pointer"
-              title="Admin Login Control Panel"
-            >
-              <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <Lock className="w-3 h-3 text-[#FF9933]" />
-              <span>Admin Login</span>
-            </button>
-
             {/* CTA Book Button */}
             <button
               onClick={() => onOpenBooking()}
@@ -289,11 +331,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.bookNow || 'Book Appointment'}</span>
             </button>
             <div className="flex justify-between items-center pt-2 text-xs text-white/60">
-              <button onClick={onOpenAdmin} className="text-[#D4AF37] underline font-medium">
-                Admin Panel
-              </button>
-              <a href="tel:+919876543210" className="text-emerald-400 font-medium">
-                📞 +91 98765 43210
+              <a href={`tel:${contactInfo.helpline}`} className="text-[#D4AF37] font-medium flex items-center gap-1">
+                📞 Helpline: {contactInfo.helpline}
+              </a>
+              <a href={`https://wa.me/91${contactInfo.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-medium flex items-center gap-1">
+                💬 WhatsApp: {contactInfo.whatsapp}
               </a>
             </div>
           </div>

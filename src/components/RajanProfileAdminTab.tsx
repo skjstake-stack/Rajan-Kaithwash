@@ -48,21 +48,23 @@ export const RajanProfileAdminTab: React.FC = () => {
   const [fullName, setFullName] = useState('पं. राजन कैथवास (मंटू)');
   const [displayName, setDisplayName] = useState('राजन कैथवास (मंटू)');
   const [designation, setDesignation] = useState('अंतरराष्ट्रीय ख्याति प्राप्त वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक');
-  const [shortBio, setShortBio] = useState('महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक।');
+  const [shortBio, setShortBio] = useState('महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।');
   const [biography, setBiography] = useState('');
-  const [experience, setExperience] = useState('25+ वर्ष');
+  const [experience, setExperience] = useState('33+ वर्ष');
   const [qualification, setQualification] = useState('ज्योतिष भास्कर, वैदिक शास्त्री, वास्तु विशारद');
   const [specialization, setSpecialization] = useState('जन्मकुण्डली फलादेश, मांगलिक दोष निवारण, कालसर्प दोष शांति, वास्तु दोष निवारण');
   const [languages, setLanguages] = useState('हिंदी, संस्कृत, अंग्रेजी');
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
 
   // Form State: Contact Info
-  const [mobile, setMobile] = useState('+91 98765 43210');
-  const [whatsapp, setWhatsapp] = useState('+91 98765 43210');
+  const [mobile, setMobile] = useState('8319885134');
+  const [whatsapp, setWhatsapp] = useState('8319885134');
+  const [helpline, setHelpline] = useState('8319885134');
   const [email, setEmail] = useState('contact@rajankaithwas.com');
   const [website, setWebsite] = useState('https://rajankaithwas.com');
-  const [officeAddress, setOfficeAddress] = useState('राजन कैथवास (मंटू) आध्यात्मिक केंद्र, सेक्टर 18, नोएडा, एनसीआर दिल्ली');
-  const [googleMap, setGoogleMap] = useState('https://maps.google.com/?q=Noida+Sector+18');
+  const [officeAddress, setOfficeAddress] = useState('Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India');
+  const [pincode, setPincode] = useState('480447');
+  const [googleMap, setGoogleMap] = useState('https://maps.google.com/?q=Chhindwara+Madhya+Pradesh+480447');
 
   // Form State: Social Links
   const [facebook, setFacebook] = useState('https://facebook.com/rajankaithwas.official');
@@ -117,18 +119,20 @@ export const RajanProfileAdminTab: React.FC = () => {
         setDesignation(p.designation || '');
         setShortBio(p.short_bio || '');
         setBiography(p.biography || '');
-        setExperience(p.experience || '25+ वर्ष');
+        setExperience(p.experience || '33+ वर्ष');
         setQualification(p.qualification || '');
         setSpecialization(p.specialization || '');
         setLanguages(p.languages || 'हिंदी, संस्कृत, अंग्रेजी');
         setStatus(p.status || 'active');
 
-        setMobile(p.mobile || '+91 98765 43210');
-        setWhatsapp(p.whatsapp || '+91 98765 43210');
+        setMobile(p.mobile || '8319885134');
+        setWhatsapp(p.whatsapp || '8319885134');
+        setHelpline(p.helpline || '8319885134');
         setEmail(p.email || 'contact@rajankaithwas.com');
         setWebsite(p.website || 'https://rajankaithwas.com');
-        setOfficeAddress(p.office_address || '');
-        setGoogleMap(p.google_map || '');
+        setOfficeAddress(p.office_address || 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India');
+        setPincode(p.pincode || '480447');
+        setGoogleMap(p.google_map || 'https://maps.google.com/?q=Chhindwara+Madhya+Pradesh+480447');
 
         setFacebook(p.facebook || '');
         setInstagram(p.instagram || '');
@@ -667,7 +671,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                   type="text"
                   value={experience}
                   onChange={(e) => setExperience(e.target.value)}
-                  placeholder="25+ वर्ष"
+                  placeholder="33+ वर्ष"
                   className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                 />
               </div>
@@ -720,7 +724,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                 rows={2}
                 value={shortBio}
                 onChange={(e) => setShortBio(e.target.value)}
-                placeholder="महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव..."
+                placeholder="महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव..."
                 className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
@@ -733,7 +737,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                 rows={5}
                 value={biography}
                 onChange={(e) => setBiography(e.target.value)}
-                placeholder="राजन कैथवास (मंटू) 25 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर..."
+                placeholder="राजन कैथवास (मंटू) 33 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर..."
                 className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
@@ -759,7 +763,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                   type="text"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
-                  placeholder="+91 98765 43210"
+                  placeholder="8319885134"
                   className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                 />
               </div>
@@ -772,7 +776,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                   type="text"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="+91 98765 43210"
+                  placeholder="8319885134"
                   className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                 />
               </div>
@@ -932,7 +936,7 @@ export const RajanProfileAdminTab: React.FC = () => {
                 rows={2}
                 value={achievements}
                 onChange={(e) => setAchievements(e.target.value)}
-                placeholder="50,000+ संतुष्ट जातक, 25+ वर्षों का अनुभव, 100+ राष्ट्रीय व अंतर्राष्ट्रीय सेमिनार संबोधन..."
+                placeholder="50,000+ संतुष्ट जातक, 33+ वर्षों का अनुभव, 100+ राष्ट्रीय व अंतर्राष्ट्रीय सेमिनार संबोधन..."
                 className="w-full bg-[#050B18] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               />
             </div>

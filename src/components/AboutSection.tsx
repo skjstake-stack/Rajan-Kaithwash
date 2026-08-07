@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, ShieldCheck, Sparkles, BookOpen, CheckCircle2, Globe, Heart } from 'lucide-react';
+import { Award, ShieldCheck, Sparkles, BookOpen, CheckCircle2, Globe, Heart, Image as ImageIcon } from 'lucide-react';
 import { Language, RajanProfile } from '../types';
 
 interface AboutSectionProps {
@@ -14,13 +14,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ darkMode, onOpenBook
     full_name: 'पं. राजन कैथवास (मंटू)',
     display_name: 'राजन कैथवास (मंटू)',
     designation: 'वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक',
-    short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव। ५०,०००+ संतुष्ट जातक।',
-    biography: 'राजन कैथवास (मंटू) 25 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर ख्याति प्राप्त वैदिक ज्योतिषाचार्य, वास्तु विशेषज्ञ एवं आध्यात्मिक मार्गदर्शक हैं। महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित उनकी सटीक भविष्यवाणियों से विश्व भर के 50,000 से अधिक जातक लाभान्वित हो चुके हैं।',
+    short_bio: 'महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव। 50,000+ संतुष्ट जातक। जन्मकुण्डली, हस्तरेखा एवं वास्तु सम्बन्धी सटीक समाधान।',
+    biography: 'राजन कैथवास (मंटू) 33 से अधिक वर्षों के गहन अनुभव के साथ अंतरराष्ट्रीय स्तर पर ख्याति प्राप्त वैदिक ज्योतिषाचार्य, वास्तु विशेषज्ञ एवं आध्यात्मिक मार्गदर्शक हैं। महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित उनकी सटीक भविष्यवाणियों से विश्व भर के 50,000 से अधिक जातक लाभान्वित हो चुके हैं।',
     mission: 'प्राचीन वैदिक ज्ञान के माध्यम से भयमुक्त, समृद्ध एवं धर्ममय जीवन जीने का सही मार्ग दिखाना।',
     vision: 'शुद्ध वैदिक ज्योतिषीय मार्गदर्शन को आधुनिक तकनीक द्वारा पूरे विश्व में सुलभ बनाना।',
-    image_url: '/rajan_kaithwas.svg',
-    profile_image_url: '/rajan_kaithwas.svg',
-    cloudinary_public_id: 'rajan_profile/default_avatar',
+    image_url: '',
+    profile_image_url: '',
+    cloudinary_public_id: '',
     status: 'active',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -50,8 +50,11 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ darkMode, onOpenBook
     { title: 'ज्योतिष रत्न स्वर्ण पदक विजेता 2024', issuer: 'अखिल भारतीय ज्योतिष संघ' },
     { title: 'वैश्विक वैदिक उत्कृष्टता सम्मान', issuer: 'अंतर्राष्ट्रीय वैदिक सम्मेलन, यूके' },
     { title: 'वास्तु सम्राट सम्मान', issuer: 'वास्तु अनुसंधान संस्थान, नई दिल्ली' },
-    { title: '25+ वर्षों का सफल अनुभव', issuer: '50,000+ संतुष्ट जातक एवं परामर्श' },
+    { title: '33+ वर्षों का सफल अनुभव', issuer: '50,000+ संतुष्ट जातक एवं परामर्श' },
   ];
+
+  const rawAboutUrl = profile.profile_image_url || profile.image_url;
+  const effectiveAboutUrl = (rawAboutUrl && !rawAboutUrl.includes('/rajan_kaithwas.svg')) ? rawAboutUrl : '';
 
   return (
     <section id="about" className="py-20 relative bg-[#050B18] text-white overflow-hidden">
@@ -63,12 +66,22 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ darkMode, onOpenBook
           {/* Image & Award Grid */}
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden p-1 bg-gradient-to-tr from-[#D4AF37] via-[#FF9933]/50 to-[#B8860B] shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-              <img
-                src={profile.profile_image_url || profile.image_url || '/rajan_kaithwas.svg'}
-                alt={profile.display_name || profile.name || 'राजन कैथवास (मंटू)'}
-                referrerPolicy="no-referrer"
-                className="w-full h-[450px] object-cover rounded-2xl filter contrast-105"
-              />
+              {effectiveAboutUrl ? (
+                <img
+                  src={effectiveAboutUrl}
+                  alt={profile.display_name || profile.name || 'राजन कैथवास (मंटू)'}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-[450px] object-cover rounded-2xl filter contrast-105"
+                />
+              ) : (
+                <div className="w-full h-[450px] bg-[#050B18] rounded-2xl border-2 border-dashed border-[#D4AF37]/40 flex flex-col items-center justify-center p-6 text-center space-y-3">
+                  <div className="w-16 h-16 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+                    <ImageIcon className="w-8 h-8 opacity-70" />
+                  </div>
+                  <span className="text-sm font-serif font-bold text-[#D4AF37]">हमारे बारे में - चित्र स्थान</span>
+                  <span className="text-xs text-white/50">एडमिन पैनल से फोटो जोड़ें</span>
+                </div>
+              )}
             </div>
 
             {/* Floating Gold Award Seal */}

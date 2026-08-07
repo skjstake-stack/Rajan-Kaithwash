@@ -390,7 +390,7 @@ export const CustomerManagementModule: React.FC<CustomerManagementModuleProps> =
 
           <div class="footer">
             <p>यह प्रामाणिक जातक विवरण राज ज्योतिष केंद्र प्रणाली द्वारा स्वचालित रूप से जनरेट किया गया है।</p>
-            <p>संपर्क: +91 98110 12345 • वेबसाइट: www.rajjyotish.com</p>
+            <p>संपर्क: 8319885134 • वेबसाइट: www.rajankaithwas.com</p>
           </div>
         </body>
       </html>
@@ -1039,7 +1039,7 @@ export const CustomerManagementModule: React.FC<CustomerManagementModuleProps> =
                     <input
                       type="text"
                       required
-                      placeholder="+91 98110 12345"
+                      placeholder="8319885134"
                       value={formData.mobile}
                       onChange={(e) => setFormData({ ...formData, mobile: e.target.value, whatsapp: formData.whatsapp || e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"
@@ -1050,7 +1050,7 @@ export const CustomerManagementModule: React.FC<CustomerManagementModuleProps> =
                     <label className="block text-white/70 mb-1 font-semibold">व्हाट्सएप नंबर</label>
                     <input
                       type="text"
-                      placeholder="+91 98110 12345"
+                      placeholder="8319885134"
                       value={formData.whatsapp}
                       onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]"

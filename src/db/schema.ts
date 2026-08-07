@@ -218,16 +218,18 @@ export const rajanProfile = pgTable('rajan_profile', {
   designation: text('designation').notNull().default('अंतरराष्ट्रीय ख्याति प्राप्त वैदिक ज्योतिषाचार्य एवं आध्यात्मिक मार्गदर्शक'),
   shortBio: text('short_bio'),
   biography: text('biography'),
-  experience: text('experience').default('25+ वर्ष'),
+  experience: text('experience').default('33+ वर्ष'),
   qualification: text('qualification').default('ज्योतिष भास्कर, वैदिक शास्त्री, वास्तु विशारद'),
   specialization: text('specialization').default('जन्मकुण्डली फलादेश, मांगलिक दोष निवारण, वास्तु दोष निवारण, रत्न परामर्श'),
   languages: text('languages').default('हिंदी, संस्कृत, अंग्रेजी'),
-  mobile: text('mobile').default('+91 98765 43210'),
-  whatsapp: text('whatsapp').default('+91 98765 43210'),
+  mobile: text('mobile').default('8319885134'),
+  whatsapp: text('whatsapp').default('8319885134'),
+  helpline: text('helpline').default('8319885134'),
   email: text('email').default('contact@rajankaithwas.com'),
   website: text('website').default('https://rajankaithwas.com'),
-  officeAddress: text('office_address').default('राजन कैथवास (मंटू) आध्यात्मिक केंद्र, सेक्टर 18, नोएडा, एनसीआर दिल्ली, भारत'),
-  googleMap: text('google_map').default('https://maps.google.com/?q=Noida+Sector+18'),
+  officeAddress: text('office_address').default('Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India'),
+  pincode: text('pincode').default('480447'),
+  googleMap: text('google_map').default('https://maps.google.com/?q=Chhindwara+Madhya+Pradesh+480447'),
   facebook: text('facebook').default('https://facebook.com/rajankaithwas.official'),
   instagram: text('instagram').default('https://instagram.com/rajankaithwas.official'),
   youtube: text('youtube').default('https://youtube.com/@rajankaithwasjyotish'),
@@ -246,6 +248,16 @@ export const rajanProfile = pgTable('rajan_profile', {
   documents: text('documents'),           // JSON stringified array of documents
   status: text('status').notNull().default('active'),
   views: integer('views').default(12500),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Define 'hero_section_images' table for Home Page Hero Section Image management
+export const heroSectionImages = pgTable('hero_section_images', {
+  id: serial('id').primaryKey(),
+  imageUrl: text('image_url').notNull(),
+  cloudinaryPublicId: text('cloudinary_public_id').notNull(),
+  status: text('status').notNull().default('active'), // 'active' | 'disabled'
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

@@ -246,14 +246,38 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
+    // Check if account is temporarily locked due to rate limiting / repeated failed attempts
+    if (adminRecord.lockUntil && new Date(adminRecord.lockUntil) > new Date()) {
+      const remainingMinutes = Math.max(1, Math.ceil((new Date(adminRecord.lockUntil).getTime() - Date.now()) / (60 * 1000)));
+      return res.status(429).json({
+        success: false,
+        error: `बार-बार अमान्य प्रयासों के कारण खाता locked है। कृपया ${remainingMinutes} मिनट पश्चात् पुनः प्रयास करें।`,
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, adminRecord.passwordHash);
 
     if (!isMatch) {
+      adminRecord.failedAttempts = (adminRecord.failedAttempts || 0) + 1;
+      if (adminRecord.failedAttempts >= 5) {
+        // Lock account for 15 minutes after 5 failed attempts
+        adminRecord.lockUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+        logAdminAction(adminRecord, 'ACCOUNT_LOCKED', 'auth', `लगातार 5 बार गलत पासवर्ड के कारण ${adminRecord.name} का खाता 15 मिनट के लिए लॉक हुआ।`);
+        return res.status(429).json({
+          success: false,
+          error: 'लगातार 5 बार अमान्य पासवर्ड दर्ज करने के कारण आपका खाता 15 मिनट के लिए लॉक कर दिया गया है।',
+        });
+      }
+
       return res.status(401).json({
         success: false,
-        error: 'अमान्य पासवर्ड!',
+        error: `अमान्य पासवर्ड! (शेष प्रयास: ${5 - adminRecord.failedAttempts})`,
       });
     }
+
+    // Success login: reset failed attempts counter & lockout timer
+    adminRecord.failedAttempts = 0;
+    adminRecord.lockUntil = null;
 
     // Success login
     const nowIso = new Date().toISOString();

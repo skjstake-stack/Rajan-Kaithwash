@@ -45,7 +45,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI Vedic Astrology Suite",
     adminPanel: "Admin Panel",
     verifiedClients: "50,000+ Satisfied Clients Worldwide",
-    yearsExp: "25+ Years Experience",
+    yearsExp: "33+ Years Experience",
   },
   hi: {
     brandName: "राजन कैथवास (मंटू) वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन",
@@ -70,7 +70,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "एआई ज्योतिष परामर्श",
     adminPanel: "एडमिन पैनल",
     verifiedClients: "50,000+ संतुष्ट भक्त व ग्राहक",
-    yearsExp: "25+ वर्षों का अनुभव",
+    yearsExp: "33+ वर्षों का अनुभव",
   },
   gu: {
     brandName: "રાજન કૈથવાસ (મંતૂ)",
@@ -92,7 +92,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "એઆઈ જ્યોતિષ",
     adminPanel: "એડમિન",
     verifiedClients: "૫૦,૦૦૦+ સંતોષકારક ગ્રાહકો",
-    yearsExp: "૨૫+ વર્ષનો અનુભવ",
+    yearsExp: "33+ વર્ષનો અનુભવ",
   },
   mr: {
     brandName: "राजन कैथवास (मंटू)",
@@ -114,7 +114,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "एआय ज्योतिष",
     adminPanel: "ॲडमिन",
     verifiedClients: "50,000+ समाधानी ग्राहक",
-    yearsExp: "25+ वर्षांचा अनुभव",
+    yearsExp: "33+ वर्षांचा अनुभव",
   },
   ta: {
     brandName: "ராஜன் கைத்வாஸ் ஜி",
@@ -136,7 +136,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI ஜோதிட மையம்",
     adminPanel: "நிர்வாகம்",
     verifiedClients: "50,000+ திருப்திகரமான வாடிக்கையாளர்கள்",
-    yearsExp: "25+ ஆண்டுகள் அனுபவம்",
+    yearsExp: "33+ ஆண்டுகள் அனுபவம்",
   },
   te: {
     brandName: "రాజన్ కైథవాస్ జీ",
@@ -158,7 +158,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI జ్యోతిష్య కేంద్రం",
     adminPanel: "అడ్మిన్",
     verifiedClients: "50,000+ సంతృప్త వినియోగదారులు",
-    yearsExp: "25+ ఏళ్ల అనుభవం",
+    yearsExp: "33+ ఏళ్ల అనుభవం",
   },
   pa: {
     brandName: "ਰਾਜਨ ਕੈਥਵਾਸ ਜੀ",
@@ -180,7 +180,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI ਜੋਤਿਸ਼",
     adminPanel: "ਐਡਮਿਨ",
     verifiedClients: "50,000+ ਖੁਸ਼ਹਾਲ ਗਾਹਕ",
-    yearsExp: "25+ ਸਾਲਾਂ ਦਾ ਤਜਰਬਾ",
+    yearsExp: "33+ ਸਾਲਾਂ ਦਾ ਤਜਰਬਾ",
   },
   bn: {
     brandName: "রাজন কায়থওয়াস জী",
@@ -202,7 +202,7 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI জ্যোতিষ সুবিধা",
     adminPanel: "অ্যাডমিন",
     verifiedClients: "৫০,০০০+ সন্তুষ্ট ক্লায়েন্ট",
-    yearsExp: "২৫+ বছরের অভিজ্ঞতা",
+    yearsExp: "33+ বছরের অভিজ্ঞতা",
   },
   ur: {
     brandName: "راجن کیتھواس جی",
@@ -224,6 +224,6 @@ export const translations: Record<Language, Record<string, string>> = {
     aiFeatures: "AI ایسٹرولوجی",
     adminPanel: "ایڈمن",
     verifiedClients: "50,000+ مطمئن گاہک",
-    yearsExp: "25+ سال کا تجربہ",
+    yearsExp: "33+ سال کا تجربہ",
   },
 };

@@ -205,7 +205,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ initialServiceId, on
                   <MapPin className="w-5 h-5 text-purple-400" />
                   <div className="text-left">
                     <span className="block font-bold">कार्यालय में व्यक्तिगत भेंट</span>
-                    <span className="text-[10px] text-white/50">नोएडा एनसीआर केंद्र</span>
+                    <span className="text-[10px] text-white/50">छिंदवाड़ा (म.प्र.) आश्रम केंद्र</span>
                   </div>
                 </button>
               </div>
@@ -313,7 +313,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ initialServiceId, on
                 <input
                   type="tel"
                   required
-                  placeholder="उदा. +91 98765 43210"
+                  placeholder="उदा. 8319885134"
                   value={clientForm.phone}
                   onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#D4AF37]"

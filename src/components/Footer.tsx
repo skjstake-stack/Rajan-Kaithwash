@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowUp, Sparkles, Phone, Mail, MapPin, ShieldCheck, Heart, Youtube, Instagram, Facebook, MessageSquare, Share2 } from 'lucide-react';
 import { Language } from '../types';
 import { LANGUAGES } from '../translations';
@@ -10,6 +10,62 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, onOpenAdmin }) => {
+  const clickCountRef = React.useRef<number>(0);
+  const clickTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const [footerSettings, setFooterSettings] = React.useState({
+    helpline: '8319885134',
+    whatsapp: '8319885134',
+    address: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+    pincode: '480447',
+  });
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setFooterSettings({
+            helpline: data.settings.helplineNumber || data.settings.contactPhone || '8319885134',
+            whatsapp: data.settings.whatsappNumber || '8319885134',
+            address: data.settings.officeAddress || 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+            pincode: data.settings.pincode || '480447',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    clickCountRef.current += 1;
+
+    if (clickCountRef.current === 1) {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = setTimeout(() => {
+        clickCountRef.current = 0;
+        clickTimerRef.current = null;
+      }, 3000);
+    }
+
+    if (clickCountRef.current >= 5) {
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+      }
+      clickCountRef.current = 0;
+      onOpenAdmin();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      clickCountRef.current = 0;
+    };
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -53,8 +109,12 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Col 1: Brand, Bio & Social Links */}
           <div className="lg:col-span-2 space-y-5">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#FF9933] to-[#B8860B] p-0.5 shadow-lg shadow-[#D4AF37]/20">
+            <div
+              onClick={handleLogoClick}
+              className="flex items-center space-x-3 cursor-pointer group select-none"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#FF9933] to-[#B8860B] p-0.5 shadow-lg shadow-[#D4AF37]/20 group-hover:scale-105 transition-transform">
                 <div className="w-full h-full bg-[#050B18] rounded-[14px] flex items-center justify-center font-serif text-[#D4AF37] font-bold text-lg">
                   ॐ
                 </div>
@@ -122,19 +182,45 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
             </ul>
           </div>
 
-          {/* Col 3: Services Offered */}
+          {/* Col 3: Official Contact Information */}
           <div className="space-y-3">
             <h4 className="font-serif font-bold text-[#D4AF37] text-sm border-b border-white/10 pb-2">
-              मुख्य विशेषताएँ
+              संपर्क जानकारी (Contact Info)
             </h4>
-            <ul className="space-y-2 text-xs text-white/70">
-              <li>कुंडली मिलान (36 गुण)</li>
-              <li>करियर एवं व्यापार ज्योतिष</li>
-              <li>कालसर्प एवं मांगलिक दोष शांति</li>
-              <li>बिना तोड़-फोड़ वास्तु परामर्श</li>
-              <li>प्रमाणित रत्न एवं रुद्राक्ष मार्गदर्शन</li>
-              <li>नवग्रह शांति एवं महामृत्युंजय पूजा</li>
-            </ul>
+            <div className="space-y-2.5 text-xs text-white/80">
+              <div className="flex items-start space-x-2">
+                <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-white/60 block text-[11px]">हेल्पलाइन नंबर:</span>
+                  <a href={`tel:${footerSettings.helpline}`} className="text-[#D4AF37] font-semibold hover:underline">
+                    {footerSettings.helpline}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-white/60 block text-[11px]">व्हाट्सएप नंबर:</span>
+                  <a href={`https://wa.me/91${footerSettings.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-semibold hover:underline">
+                    {footerSettings.whatsapp}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-white/60 block text-[11px]">कार्यालय पता:</span>
+                  <span className="text-white/80 leading-relaxed block text-[11px]">
+                    {footerSettings.address}
+                  </span>
+                  <span className="text-[#D4AF37] font-semibold block text-[11px] mt-0.5">
+                    पिनकोड: {footerSettings.pincode}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Col 4: Social Channels Bar, Language & Admin */}
@@ -205,13 +291,6 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
                 ))}
               </select>
             </div>
-
-            <button
-              onClick={onOpenAdmin}
-              className="w-full py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-[#D4AF37] text-xs font-semibold hover:bg-[#D4AF37]/10 transition-colors cursor-pointer"
-            >
-              🔐 कार्यालय एडमिन पोर्टल
-            </button>
           </div>
         </div>
 

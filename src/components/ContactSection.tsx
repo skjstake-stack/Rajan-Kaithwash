@@ -8,6 +8,31 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
   const [formSent, setFormSent] = useState(false);
+  const [contactSettings, setContactSettings] = useState({
+    helpline: '8319885134',
+    whatsapp: '8319885134',
+    address: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+    pincode: '480447',
+    email: 'contact@rajankaithwas.com',
+  });
+
+  React.useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setContactSettings({
+            helpline: data.settings.helplineNumber || data.settings.contactPhone || '8319885134',
+            whatsapp: data.settings.whatsappNumber || '8319885134',
+            address: data.settings.officeAddress || 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+            pincode: data.settings.pincode || '480447',
+            email: data.settings.contactEmail || 'contact@rajankaithwas.com',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -41,7 +66,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
             संपर्क करें - <span className="text-[#D4AF37] italic">राजन कैथवास (मंटू)</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-white/60">
-            ऑनलाइन वीडियो परामर्श, नोएडा एनसीआर कार्यालय आगमन, अथवा आपातकालीन ज्योतिषीय जिज्ञासा हेतु संपर्क करें।
+            ऑनलाइन वीडियो परामर्श, कार्यालय आगमन, अथवा आपातकालीन ज्योतिषीय जिज्ञासा हेतु संपर्क करें।
           </p>
         </div>
 
@@ -57,19 +82,30 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
                 <MapPin className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-white block">कार्यालय पता:</span>
-                  <span className="text-white/70">
-                    सेक्टर 62, नोएडा एनसीआर, दिल्ली-एनसीआर, भारत 201309
+                  <span className="text-white/70 block">
+                    {contactSettings.address}
+                  </span>
+                  <span className="text-[#D4AF37] text-xs font-semibold block mt-0.5">
+                    पिनकोड (Pincode): {contactSettings.pincode}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3 text-xs sm:text-sm">
                 <Phone className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-white block">हेल्पलाइन / व्हाट्सएप:</span>
-                  <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-[#D4AF37] hover:underline">
-                    +91 98765 43210 / +91 91234 56789
-                  </a>
+                <div className="space-y-1">
+                  <div>
+                    <span className="font-bold text-white">हेल्पलाइन नंबर: </span>
+                    <a href={`tel:${contactSettings.helpline}`} className="text-[#D4AF37] hover:underline font-semibold">
+                      {contactSettings.helpline}
+                    </a>
+                  </div>
+                  <div>
+                    <span className="font-bold text-white">व्हाट्सएप नंबर: </span>
+                    <a href={`https://wa.me/91${contactSettings.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline font-semibold">
+                      {contactSettings.whatsapp}
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -77,8 +113,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
                 <Mail className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-white block">आधिकारिक ईमेल:</span>
-                  <a href="mailto:rajan.kaithwas@gmail.com" className="text-[#D4AF37] hover:underline">
-                    rajan.kaithwas@gmail.com
+                  <a href={`mailto:${contactSettings.email}`} className="text-[#D4AF37] hover:underline">
+                    {contactSettings.email}
                   </a>
                 </div>
               </div>
@@ -96,10 +132,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
             <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-2xl flex items-center justify-between">
               <div>
                 <h4 className="font-serif font-bold text-lg">तत्काल व्हाट्सएप सहायता</h4>
-                <p className="text-xs text-emerald-100 mt-1">बुकिंग अथवा तत्काल कुण्डली समाधान हेतु संदेश भेजें।</p>
+                <p className="text-xs text-emerald-100 mt-1">बुकिंग अथवा तत्काल कुण्डली समाधान हेतु संदेश भेजें ({contactSettings.whatsapp})</p>
               </div>
               <a
-                href="https://wa.me/919876543210?text=%E0%A4%B9%E0%A4%B0%E0%A4%BF%20%E0%A4%93%E0%A4%AE%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%A8%20%E0%A4%95%E0%A5%88%E0%A4%A5%E0%A4%B5%E0%A4%BE%E0%A4%B8%20%E0%A4%9C%E0%A5%80,%20%E0%A4%AE%E0%A5%88%E0%A4%82%20%E0%A4%AA%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A4%B0%E0%A5%8D%E0%A4%B6%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%A8%E0%A4%BE%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%82%E0%A4%82%E0%A5%82%E0%A5%82%E0%A5%82।"
+                href={`https://wa.me/91${contactSettings.whatsapp.replace(/\D/g, '')}?text=%E0%A4%B9%E0%A4%B0%E0%A4%BF%20%E0%A4%93%E0%A4%AE%20%E0%A4%B0%E0%A4%BE%E0%A4%9C%E0%A4%A8%20%E0%A4%95%E0%A5%88%E0%A4%A5%E0%A4%B5%E0%A4%BE%E0%A4%B8%20%E0%A4%9C%E0%A5%80,%20%E0%A4%AE%E0%A5%88%E0%A4%82%20%E0%A4%AA%E0%A4%B0%E0%A4%BE%E0%A4%AE%E0%A4%B0%E0%A5%8D%E0%A4%B6%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%A8%E0%A4%BE%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%82%E0%A4%82%E0%A5%82%E0%A5%82%E0%A5%82।`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-white text-emerald-900 font-bold text-xs shadow-lg hover:bg-emerald-50 shrink-0 cursor-pointer"
@@ -144,7 +180,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
                     <input
                       type="tel"
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="8319885134"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D4AF37]"

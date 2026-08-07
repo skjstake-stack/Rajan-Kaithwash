@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { Sparkles, Bot, Heart, Gem, Compass, Send, User, Calendar, Clock, MapPin, Loader2, Volume2, Mic } from 'lucide-react';
+import { Sparkles, Bot, Heart, Gem, Compass, Send, User, Calendar, Clock, MapPin, Loader2, Volume2, Mic, Globe } from 'lucide-react';
 import { Language } from '../types';
 import { CleanFormattedText, cleanMarkdownSymbols } from '../utils/textUtils';
+import { KUNDLI_LANGUAGES, KUNDLI_TRANSLATIONS } from '../data/kundliTranslations';
+import { calculateVedicKundli, KundliCalculationResult } from '../utils/vedicKundliCalc';
+import { NorthIndianKundliChart } from './NorthIndianKundliChart';
+import { KundliDetailsTable } from './KundliDetailsTable';
 
 interface AIAstrologyStudioProps {
   currentLang: Language;
@@ -13,7 +17,13 @@ interface AIAstrologyStudioProps {
 export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLang, darkMode, onOpenBooking, onOpenVoiceAssistant }) => {
   const [activeTab, setActiveTab] = useState<'kundli' | 'matching' | 'chat' | 'remedy'>('kundli');
 
-  // --- 1. Kundli State ---
+  // --- 1. Multilingual Kundli State (Default: Hindi) ---
+  const [kundliLang, setKundliLang] = useState<string>(() => {
+    return localStorage.getItem('kundli_section_lang') || 'hi';
+  });
+
+  const kDict = KUNDLI_TRANSLATIONS[kundliLang] || KUNDLI_TRANSLATIONS['hi'];
+
   const [kundliForm, setKundliForm] = useState({
     name: '',
     dob: '1996-05-15',
@@ -22,7 +32,59 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
     gender: 'Male',
   });
   const [kundliResult, setKundliResult] = useState<string | null>(null);
+  const [calcKundliData, setCalcKundliData] = useState<KundliCalculationResult | null>(null);
+  const [chartType, setChartType] = useState<'D1' | 'D9' | 'D10'>('D1');
   const [loadingKundli, setLoadingKundli] = useState(false);
+
+  const handleKundliLangChange = (newLang: string) => {
+    setKundliLang(newLang);
+    localStorage.setItem('kundli_section_lang', newLang);
+
+    // Save preference for logged-in users to profile/DB
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken');
+    if (token) {
+      fetch('/api/user/preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ kundli_lang: newLang }),
+      }).catch(() => {});
+    }
+
+    if (kundliResult && kundliForm.name) {
+      reGenerateKundliWithLang(newLang);
+    }
+  };
+
+  const reGenerateKundliWithLang = async (langToUse: string) => {
+    setLoadingKundli(true);
+    const computed = calculateVedicKundli(
+      kundliForm.dob,
+      kundliForm.tob,
+      kundliForm.pob,
+      kundliForm.name || 'User',
+      kundliForm.gender
+    );
+    setCalcKundliData(computed);
+
+    try {
+      const res = await fetch('/api/ai/kundli', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...kundliForm, lang: langToUse }),
+      });
+      const data = await res.json();
+      if (data.success && data.result) {
+        setKundliResult(cleanMarkdownSymbols(data.result));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingKundli(false);
+    }
+  };
 
   // --- 2. Matching State ---
   const [partner1, setPartner1] = useState({ name: 'Aarav Mehta', dob: '1995-03-12', tob: '08:15', pob: 'Mumbai, India' });
@@ -54,11 +116,21 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
     e.preventDefault();
     setLoadingKundli(true);
     setKundliResult(null);
+
+    const computed = calculateVedicKundli(
+      kundliForm.dob,
+      kundliForm.tob,
+      kundliForm.pob,
+      kundliForm.name || 'User',
+      kundliForm.gender
+    );
+    setCalcKundliData(computed);
+
     try {
       const res = await fetch('/api/ai/kundli', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...kundliForm, lang: currentLang }),
+        body: JSON.stringify({ ...kundliForm, lang: kundliLang }),
       });
       const data = await res.json();
       if (data.success && data.result) {
@@ -69,6 +141,18 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
     } finally {
       setLoadingKundli(false);
     }
+  };
+
+  const handleResetKundli = () => {
+    setKundliForm({
+      name: '',
+      dob: '1996-05-15',
+      tob: '09:30',
+      pob: 'New Delhi, India',
+      gender: 'Male',
+    });
+    setKundliResult(null);
+    setCalcKundliData(null);
   };
 
   const handleGenerateMatching = async (e: React.FormEvent) => {
@@ -216,133 +300,242 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
 
         {/* TAB 1: AI Kundli Summary */}
         {activeTab === 'kundli' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <form onSubmit={handleGenerateKundli} className="lg:col-span-5 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-4 shadow-2xl">
-              <h3 className="text-xl font-serif font-bold text-[#D4AF37] flex items-center">
-                <Compass className="w-5 h-5 mr-2" />
-                जन्म विवरण प्रविष्ट करें
-              </h3>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/70 mb-1">पूरा नाम</label>
-                <div className="relative">
-                  <User className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="उदा. रमेश कुमार"
-                    value={kundliForm.name}
-                    onChange={(e) => setKundliForm({ ...kundliForm, name: e.target.value })}
-                    className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none"
-                  />
+          <div className="space-y-6">
+            {/* Language Selector Toolbar */}
+            <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div className="flex items-center space-x-2">
+                  <Globe className="w-5 h-5 text-[#FF9933]" />
+                  <span className="font-serif font-bold text-sm sm:text-base text-[#D4AF37] tracking-wider">
+                    {kDict.selectLangLabel}
+                  </span>
                 </div>
+                <span className="text-[11px] text-white/50">
+                  (Default: हिंदी • Preference saved automatically)
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-white/70 mb-1">जन्म तिथि</label>
-                  <div className="relative">
-                    <Calendar className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
-                    <input
-                      type="date"
-                      required
-                      value={kundliForm.dob}
-                      onChange={(e) => setKundliForm({ ...kundliForm, dob: e.target.value })}
-                      className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-2 py-2 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-white/70 mb-1">जन्म समय</label>
-                  <div className="relative">
-                    <Clock className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
-                    <input
-                      type="time"
-                      required
-                      value={kundliForm.tob}
-                      onChange={(e) => setKundliForm({ ...kundliForm, tob: e.target.value })}
-                      className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-2 py-2 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-                </div>
+              {/* 9 Languages Selection Pills */}
+              <div className="flex flex-wrap gap-2 items-center">
+                {KUNDLI_LANGUAGES.map((langOpt) => {
+                  const isActive = kundliLang === langOpt.code;
+                  return (
+                    <button
+                      key={langOpt.code}
+                      type="button"
+                      onClick={() => handleKundliLangChange(langOpt.code)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] font-bold shadow-[0_0_15px_rgba(212,175,55,0.4)] scale-105'
+                          : 'bg-white/5 border border-white/10 text-white/70 hover:text-[#D4AF37] hover:bg-white/10'
+                      }`}
+                    >
+                      <span>{langOpt.label}</span>
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
+            {/* Form and Output Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <form onSubmit={handleGenerateKundli} className="lg:col-span-5 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-4 shadow-2xl">
+                <h3 className="text-xl font-serif font-bold text-[#D4AF37] flex items-center">
+                  <Compass className="w-5 h-5 mr-2" />
+                  {kDict.formTitle}
+                </h3>
+
                 <div>
-                  <label className="block text-xs font-semibold text-white/70 mb-1">जन्म स्थान</label>
+                  <label className="block text-xs font-semibold text-white/70 mb-1">{kDict.fullNameLabel}</label>
                   <div className="relative">
-                    <MapPin className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
+                    <User className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
                     <input
                       type="text"
                       required
-                      placeholder="उदा. जयपुर, राजस्थान"
-                      value={kundliForm.pob}
-                      onChange={(e) => setKundliForm({ ...kundliForm, pob: e.target.value })}
+                      placeholder={kDict.fullNamePlaceholder}
+                      value={kundliForm.name}
+                      onChange={(e) => setKundliForm({ ...kundliForm, name: e.target.value })}
                       className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-white/70 mb-1">लिंग</label>
-                  <select
-                    value={kundliForm.gender}
-                    onChange={(e) => setKundliForm({ ...kundliForm, gender: e.target.value })}
-                    className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
-                  >
-                    <option value="Male">पुरुष</option>
-                    <option value="Female">महिला</option>
-                    <option value="Other">अन्य</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loadingKundli}
-                className="w-full py-3.5 rounded-full font-bold tracking-wider text-[#050B18] bg-gradient-to-r from-[#D4AF37] to-[#B8860B] shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform text-xs flex items-center justify-center cursor-pointer"
-              >
-                {loadingKundli ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ग्रह डिग्रियों की गणना हो रही है...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    एआई जन्म कुंडली निर्मित करें
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Kundli Output Panel */}
-            <div className="lg:col-span-7 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 min-h-[420px] flex flex-col justify-between shadow-2xl">
-              {kundliResult ? (
-                <div className="space-y-4 text-xs sm:text-sm text-white/80 leading-relaxed max-h-[500px] overflow-y-auto pr-2">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <span className="font-serif font-bold text-[#D4AF37] text-lg">
-                      वैदिक जन्म कुंडली विवरण: {kundliForm.name}
-                    </span>
-                    <button
-                      onClick={() => onOpenBooking('janam-kundli')}
-                      className="px-3 py-1 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] text-xs font-bold rounded-full hover:scale-105 transition-transform cursor-pointer"
-                    >
-                      व्यक्तिगत परामर्श बुक करें
-                    </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-white/70 mb-1">{kDict.dobLabel}</label>
+                    <div className="relative">
+                      <Calendar className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
+                      <input
+                        type="date"
+                        required
+                        value={kundliForm.dob}
+                        onChange={(e) => setKundliForm({ ...kundliForm, dob: e.target.value })}
+                        className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-2 py-2 text-xs text-white focus:outline-none"
+                      />
+                    </div>
                   </div>
-                  <CleanFormattedText content={kundliResult} className="text-white/80" />
+
+                  <div>
+                    <label className="block text-xs font-semibold text-white/70 mb-1">{kDict.tobLabel}</label>
+                    <div className="relative">
+                      <Clock className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
+                      <input
+                        type="time"
+                        required
+                        value={kundliForm.tob}
+                        onChange={(e) => setKundliForm({ ...kundliForm, tob: e.target.value })}
+                        className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-2 py-2 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center my-auto py-16 space-y-3 text-white/40">
-                  <Compass className="w-16 h-16 mx-auto text-[#D4AF37]/40 animate-pulse" />
-                  <p className="font-serif text-lg text-[#D4AF37]">आपकी एआई जन्म कुंडली रिपोर्ट यहाँ प्रदर्शित होगी</p>
-                  <p className="text-xs max-w-sm mx-auto text-white/50">
-                    बाईं ओर अपनी जन्म तिथि, सटीक समय एवं नगर प्रविष्ट करें। लग्न, चंद्र राशि, महादशा एवं योगों का त्वरित विश्लेषण प्राप्त करें।
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-white/70 mb-1">{kDict.pobLabel}</label>
+                    <div className="relative">
+                      <MapPin className="w-4 h-4 absolute left-3 top-3 text-[#D4AF37]" />
+                      <input
+                        type="text"
+                        required
+                        placeholder={kDict.pobPlaceholder}
+                        value={kundliForm.pob}
+                        onChange={(e) => setKundliForm({ ...kundliForm, pob: e.target.value })}
+                        className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-white/70 mb-1">{kDict.genderLabel}</label>
+                    <select
+                      value={kundliForm.gender}
+                      onChange={(e) => setKundliForm({ ...kundliForm, gender: e.target.value })}
+                      className="w-full bg-[#050B18] border border-[#D4AF37]/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                    >
+                      <option value="Male">{kDict.genderMale}</option>
+                      <option value="Female">{kDict.genderFemale}</option>
+                      <option value="Other">{kDict.genderOther}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={loadingKundli}
+                    className="flex-1 py-3.5 rounded-full font-bold tracking-wider text-[#050B18] bg-gradient-to-r from-[#D4AF37] to-[#B8860B] shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform text-xs flex items-center justify-center cursor-pointer disabled:opacity-50"
+                  >
+                    {loadingKundli ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {kDict.calculatingBtn}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {kDict.generateBtn}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetKundli}
+                    className="px-5 py-3.5 rounded-full font-semibold text-xs tracking-wider text-white/80 bg-white/10 hover:bg-white/20 border border-white/10 transition-all cursor-pointer"
+                  >
+                    {kDict.resetBtn}
+                  </button>
+                </div>
+              </form>
+
+              {/* Kundli Output Panel */}
+              <div className="lg:col-span-7 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 min-h-[420px] flex flex-col justify-between shadow-2xl">
+                {calcKundliData ? (
+                  <div className="space-y-6">
+                    {/* Header with Consultation button */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div>
+                        <h3 className="font-serif font-bold text-[#D4AF37] text-lg sm:text-xl">
+                          {kDict.resultHeader}: {kundliForm.name || 'Janam Kundli'}
+                        </h3>
+                        <p className="text-xs text-white/60">
+                          DOB: {kundliForm.dob} | TOB: {kundliForm.tob} | POB: {kundliForm.pob}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => onOpenBooking('janam-kundli')}
+                        className="px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#050B18] text-xs font-bold rounded-full hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-[#D4AF37]/20 shrink-0"
+                      >
+                        {kDict.bookConsultationBtn}
+                      </button>
+                    </div>
+
+                    {/* 1. Traditional North Indian Vedic Kundli Chart Visualizer */}
+                    <div className="p-4 rounded-2xl bg-[#050B18]/70 border border-[#D4AF37]/30">
+                      <NorthIndianKundliChart
+                        kundliData={calcKundliData}
+                        lang={kundliLang}
+                        chartType={chartType}
+                        onChartTypeChange={setChartType}
+                      />
+                    </div>
+
+                    {/* 2. Key Birth Summary & Planetary Table & Actions */}
+                    <KundliDetailsTable
+                      kundliData={calcKundliData}
+                      lang={kundliLang}
+                    />
+
+                    {/* 3. Detailed AI Interpretation Analysis */}
+                    {kundliResult && (
+                      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                        <h4 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-2 border-b border-white/10 pb-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          <span>पाराशरी एआई विश्लेषण एवं उपाय रिपोर्ट</span>
+                        </h4>
+                        <div className="text-xs sm:text-sm text-white/80 leading-relaxed max-h-[400px] overflow-y-auto pr-2">
+                          <CleanFormattedText content={kundliResult} className="text-white/80" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center my-auto py-16 space-y-3 text-white/40">
+                    <Compass className="w-16 h-16 mx-auto text-[#D4AF37]/40 animate-pulse" />
+                    <p className="font-serif text-lg text-[#D4AF37]">{kDict.emptyStateTitle}</p>
+                    <p className="text-xs max-w-sm mx-auto text-white/50">
+                      {kDict.emptyStateDesc}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Reference Panel in Selected Language */}
+            <div className="p-4 rounded-3xl bg-white/5 border border-white/10 text-xs text-white/70 space-y-2">
+              <span className="font-serif font-bold text-[#D4AF37] text-sm block">
+                {kDict.quickReferenceTitle}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] pt-1">
+                <div className="p-2.5 rounded-xl bg-[#050B18]/60 border border-white/5">
+                  <span className="text-[#FF9933] font-semibold block mb-1">12 Rashi / Zodiacs:</span>
+                  <p className="text-white/80 leading-snug">{kDict.zodiacSigns.join(' • ')}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#050B18]/60 border border-white/5">
+                  <span className="text-[#D4AF37] font-semibold block mb-1">9 Navagraha / Planets:</span>
+                  <p className="text-white/80 leading-snug">{kDict.planets.join(' • ')}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#050B18]/60 border border-white/5">
+                  <span className="text-emerald-400 font-semibold block mb-1">Numeral Format:</span>
+                  <p className="text-white/80 leading-snug">0, 1, 2, 3, 4, 5, 6, 7, 8, 9 (English)</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#050B18]/60 border border-white/5">
+                  <span className="text-cyan-400 font-semibold block mb-1">Active Kundli Language:</span>
+                  <p className="text-[#D4AF37] font-bold">
+                    {KUNDLI_LANGUAGES.find((l) => l.code === kundliLang)?.native || 'हिंदी (Hindi)'}
                   </p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         )}
@@ -668,6 +861,111 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
             </div>
           </div>
         )}
+
+        {/* RICH SEO EXPLANATORY GUIDE ON KUNDLI & VEDIC ASTROLOGY */}
+        <article className="mt-16 pt-12 border-t border-white/10 space-y-10">
+          <header className="text-center max-w-3xl mx-auto space-y-3">
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#D4AF37]">
+              वैदिक जन्म कुंडली, ग्रह एवं ३६ गुण मिलान: संपूर्ण मार्गदर्शिका
+            </h2>
+            <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
+              आचार्य राजन कैथवास (मंटू) जी द्वारा पराशर सिद्धांत के अनुसार जन्म कुंडली फलादेश एवं वैदिक ज्योतिष ज्ञानवर्धक संदर्भ।
+            </p>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs text-white/80">
+            {/* 1. What is Janam Kundli */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                १. जन्म कुंडली क्या है? (Janam Kundli)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                वैदिक ज्योतिष के अनुसार, व्यक्ति के जन्म के सटीक समय, तिथि एवं स्थान पर आकाशमंडल में स्थित ९ नवग्रहों, १२ राशियों एवं २७ नक्षत्रों की सटीक खगोलीय स्थिति का मानचित्र ही <strong className="text-white">जन्म कुंडली (Janam Kundli)</strong> कहलाता है। यह मनुष्य के पूर्व जन्म के कर्मों एवं इस जन्म के प्रारब्ध का दर्पण है।
+              </p>
+            </section>
+
+            {/* 2. Lagna */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <Compass className="w-4 h-4 text-emerald-400" />
+                २. लग्न क्या है? (Lagna / Ascendant)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                जन्म के समय पूर्वी क्षितिज पर जो राशि उदित हो रही होती है, उसे <strong className="text-white">लग्न (Lagna)</strong> या प्रथम भाव कहा जाता है। लग्न व्यक्ति के शरीर, स्वास्थ्य, स्वभाव, आत्मविश्वास, शारीरिक बनावट एवं जीवन के समग्र दृष्टिकोण का निर्धारण करता है।
+              </p>
+            </section>
+
+            {/* 3. Grahas */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <Globe className="w-4 h-4 text-blue-400" />
+                ३. नवग्रहों का महत्व (9 Grahas)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                वैदिक ज्योतिष में ९ मुख्य ग्रह माने गए हैं: सूर्य (आत्मा, आत्मा), चंद्रमा (मन), मंगल (पराक्रम), बुध (बुद्धि), गुरु (ज्ञान, भाग्य), शुक्र (सुख, दांपत्य), शनि (कर्म, न्याय), राहु एवं केतु (छाया ग्रह)। प्रत्येक ग्रह अपनी स्थिति एवं दृष्टि से मानव जीवन को गहराई से प्रभावित करता है।
+              </p>
+            </section>
+
+            {/* 4. 12 Houses */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <User className="w-4 h-4 text-purple-400" />
+                ४. १२ भाव (12 Houses in Kundli)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                कुंडली के १२ भाव जीवन के विभिन्न क्षेत्रों का प्रतिनिधित्व करते हैं: तनु (स्वयं), धन (संपत्ति), सहज (भाई-बहन), सुख (माता, मकान), पुत्र (शिक्षा, संतान), रिपु (रोग, ऋण), युवती (विवाह, पार्टनर), रंध्रा (आयु, गुप्त विद्या), धर्म (भाग्य, पिता), कर्म (करियर), लाभ (आवक) एवं व्यय (विदेश, मोक्ष)।
+              </p>
+            </section>
+
+            {/* 5. 27 Nakshatras */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-rose-400" />
+                ५. २७ नक्षत्र (27 Nakshatras)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                ३६० डिग्री के आकाश चक्र को २७ नक्षत्रों में विभाजित किया गया है, जिसकी शुरुआत अश्विनी से होकर रेवती पर समाप्त होती है। जन्म के समय चंद्रमा जिस नक्षत्र चरण में स्थित होता है, वही व्यक्ति का <strong className="text-white">जन्म नक्षत्र</strong> कहलाता है।
+              </p>
+            </section>
+
+            {/* 6. Dasha & Navamsha */}
+            <section className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <h3 className="text-lg font-serif font-bold text-[#D4AF37] flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-400" />
+                ६. विंशोत्तरी दशा एवं नवमांश (D9)
+              </h3>
+              <p className="leading-relaxed text-white/70">
+                १२० वर्षों की विंशोत्तरी महादशा यह निर्धारित करती है कि कौन से ग्रह का फल किस समय प्राप्त होगा। वहीं <strong className="text-white">नवमांश कुंडली (D9 Chart)</strong> सूक्ष्म फलादेश, वैवाहिक सुख एवं अंतर्निहित भाग्य का आंकलन करने हेतु अत्यंत अनिवार्य मानी जाती है।
+              </p>
+            </section>
+          </div>
+
+          {/* Kundli Milan & Internal Links */}
+          <div className="p-8 rounded-3xl bg-gradient-to-r from-[#D4AF37]/10 via-white/5 to-[#D4AF37]/10 border border-[#D4AF37]/30 space-y-4">
+            <h3 className="text-xl font-serif font-bold text-[#D4AF37]">
+              अष्टकूट ३६ गुण कुंडली मिलान (Kundli Milan for Marriage)
+            </h3>
+            <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+              वर एवं वधू के सुखी वैवाहिक जीवन हेतु वैदिक ज्योतिष में अष्टकूट मिलान (वर्ण, वश्य, तारा, योनि, ग्रह मैत्री, गण, भकूट एवं नाड़ी) का विधान है। ३६ में से १८ या अधिक गुण मिलने पर विवाह शुभ माना जाता है। इसके अतिरिक्त मांगलिक दोष एवं नाड़ी दोष का परिहार देखना अत्यंत आवश्यक है।
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => onOpenBooking('janam-kundli')}
+                className="px-5 py-2.5 bg-[#D4AF37] text-[#050B18] font-bold text-xs rounded-full hover:bg-[#b89428] transition-all cursor-pointer shadow-md"
+              >
+                1-on-1 व्यक्तिगत जन्म कुंडली परामर्श लें
+              </button>
+              <button
+                onClick={() => onOpenBooking('kundli-matching')}
+                className="px-5 py-2.5 bg-white/10 text-white font-bold text-xs rounded-full border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
+              >
+                ३६ गुण मिलान एवं मांगलिक रिपोर्ट
+              </button>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
   );

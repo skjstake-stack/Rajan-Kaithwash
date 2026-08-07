@@ -133,7 +133,7 @@ export const HomeBannerManagementModule: React.FC<HomeBannerManagementModuleProp
     button_text: 'परामर्श बुक करें',
     button_url: '#booking',
     second_button_text: 'WhatsApp परामर्श',
-    second_button_url: 'https://wa.me/919876543210',
+    second_button_url: 'https://wa.me/918319885134',
     status: 'active',
     display_order: 1,
     start_date: new Date().toISOString().split('T')[0],
@@ -194,7 +194,7 @@ export const HomeBannerManagementModule: React.FC<HomeBannerManagementModuleProp
       button_text: 'परामर्श बुक करें',
       button_url: '#booking',
       second_button_text: 'WhatsApp परामर्श',
-      second_button_url: 'https://wa.me/919876543210',
+      second_button_url: 'https://wa.me/918319885134',
       status: 'active',
       display_order: banners.length + 1,
       start_date: new Date().toISOString().split('T')[0],
@@ -1096,7 +1096,7 @@ export const HomeBannerManagementModule: React.FC<HomeBannerManagementModuleProp
                 <label className="text-xs font-semibold text-white/80">विवरण (Description / Tagline)</label>
                 <textarea
                   rows={2}
-                  placeholder="उदा: महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित २५+ वर्षों का प्रामाणिक अनुभव..."
+                  placeholder="उदा: महर्षि पराशर एवं जैमिनी सिद्धान्तों पर आधारित 33+ वर्षों का प्रामाणिक अनुभव..."
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   className="w-full p-3 bg-white/5 border border-white/15 rounded-xl text-white mt-1 focus:border-[#D4AF37] focus:outline-none"

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, HeartHandshake, Briefcase, ShieldAlert, Home, Gem, Hash, CalendarCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import { AstrologyService, Language } from '../types';
 import { ASTROLOGY_SERVICES } from '../data/astrologyData';
+import { SEOHead } from './SEOHead';
 
 interface ServicesSectionProps {
   currentLang: Language;
@@ -54,6 +55,39 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ darkMode, onOp
 
   return (
     <section id="services" className="py-20 relative bg-[#050B18] text-white overflow-hidden">
+      {/* Dynamic SEO Head when modal service is open */}
+      {activeModalService && (
+        <SEOHead
+          title={`${activeModalService.title} | आचार्य राजन कैथवास (मंटू)`}
+          description={activeModalService.description}
+          keywords={`${activeModalService.title}, ${activeModalService.hindiTitle}, वैदिक ज्योतिष, राजन कैथवास मंटू`}
+          canonicalUrl={`/services/${activeModalService.id}`}
+          structuredData={{
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            'name': activeModalService.title,
+            'description': activeModalService.description,
+            'provider': {
+              '@type': 'ProfessionalService',
+              'name': 'राजन कैथवास (मंटू) - वैदिक ज्योतिष एवं आध्यात्मिक केंद्र',
+              'telephone': '+918319885134',
+              'address': {
+                '@type': 'PostalAddress',
+                'streetAddress': 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia',
+                'addressLocality': 'Parasia',
+                'addressRegion': 'Madhya Pradesh',
+                'postalCode': '480447',
+                'addressCountry': 'IN'
+              }
+            },
+            'offers': {
+              '@type': 'Offer',
+              'price': activeModalService.priceINR,
+              'priceCurrency': 'INR'
+            }
+          }}
+        />
+      )}
       {/* Glow Effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
 

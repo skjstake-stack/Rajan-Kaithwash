@@ -188,9 +188,11 @@ export interface RajanProfile {
   languages: string;
   mobile: string;
   whatsapp: string;
+  helpline?: string;
   email: string;
   website: string;
   office_address: string;
+  pincode?: string;
   google_map: string;
   facebook: string;
   instagram: string;
@@ -236,6 +238,7 @@ export type ModuleName =
   | 'bookings'
   | 'customers'
   | 'services'
+  | 'hero_section_image'
   | 'blog'
   | 'gallery'
   | 'home_banner'
@@ -447,4 +450,35 @@ export interface HomeBannerSettings {
   darkOverlay: boolean;
   animationEffect: 'fade' | 'slide' | 'zoom' | 'none';
 }
+
+export interface HeroSectionImage {
+  id: string | number;
+  image_url: string;
+  cloudinary_public_id: string;
+  status: 'active' | 'disabled';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface WebsiteSettings {
+  websiteName: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  helplineNumber: string;
+  whatsappNumber: string;
+  contactPhone: string;
+  contactEmail: string;
+  officeAddress: string;
+  pincode: string;
+  noticeText?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  seoTitle?: string;
+  seoKeywords?: string;
+  googleAnalyticsId?: string;
+  metaPixelId?: string;
+  maintenanceMode?: boolean;
+}
+
 

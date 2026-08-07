@@ -11,6 +11,7 @@ import { GallerySection } from './components/GallerySection';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { SEOHead } from './components/SEOHead';
 
 // Modals & Admin Pages
 import { BookingModal } from './components/BookingModal';
@@ -24,6 +25,9 @@ export default function App() {
   const [currentLang, setCurrentLang] = useState<Language>('hi');
   const [darkMode, setDarkMode] = useState(true);
 
+  // Dynamic Site Settings for SEO
+  const [siteSettings, setSiteSettings] = useState<any>(null);
+
   // View Routing State: 'site' | 'admin-login' | 'admin-dashboard'
   const [currentView, setCurrentView] = useState<'site' | 'admin-login' | 'admin-dashboard'>('site');
 
@@ -35,6 +39,18 @@ export default function App() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingServiceId, setBookingServiceId] = useState<string | undefined>(undefined);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  // Fetch website settings on load
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setSiteSettings(data.settings);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Sync state with URL path on load
   useEffect(() => {
@@ -131,6 +147,15 @@ export default function App() {
 
   return (
     <div className={`min-h-screen font-sans relative overflow-x-hidden selection:bg-[#D4AF37] selection:text-[#050B18] transition-colors duration-300 ${darkMode ? 'bg-[#050B18] text-white' : 'bg-[#0A1226] text-[#F8FAFC]'}`}>
+      {/* Global SEO Head Management */}
+      <SEOHead
+        title={siteSettings?.seoTitle || 'राजन कैथवास (मंटू) | वैदिक ज्योतिष, जन्म कुंडली, वास्तु एवं हस्तरेखा - छिंदवाड़ा'}
+        description={siteSettings?.seoDescription || 'आचार्य राजन कैथवास (मंटू) जी द्वारा प्रामाणिक वैदिक ज्योतिष, जन्म कुंडली फलादेश, कुंडली मिलान, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष एवं सटीक रत्न परामर्श। छिंदवाड़ा, परासिया, छांदामेटा (मध्य प्रदेश)।'}
+        keywords={siteSettings?.seoKeywords || 'राजन कैथवास, मंटू, वैदिक ज्योतिष, जन्म कुंडली, कुंडली मिलान, विवाह ज्योतिष, करियर ज्योतिष, वास्तु परामर्श, हस्तरेखा, अंक ज्योतिष, रत्न परामर्श, छिंदवाड़ा ज्योतिष, परासिया ज्योतिष, Chhindwara Astrologer, Rajan Kaithwas Mantoo'}
+        ogImage={siteSettings?.defaultOgImage || 'https://rajankaithwas.com/rajan_kaithwas.svg'}
+        googleVerificationCode={siteSettings?.googleSearchConsoleCode || 'google-site-verification=rkj-astro-2026-verify-code'}
+      />
+
       {/* Immersive Cosmic Background Ambient Glow */}
       <div 
         className="fixed inset-0 opacity-30 pointer-events-none z-0" 
