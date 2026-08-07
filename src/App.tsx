@@ -175,6 +175,7 @@ export default function App() {
           onToggleDarkMode={() => setDarkMode(!darkMode)}
           onOpenBooking={() => handleOpenBooking()}
           onOpenAdmin={handleOpenAdminLogin}
+          onOpenVoiceAssistant={() => setShowVoiceModal(true)}
         />
       </div>
 

@@ -12,6 +12,7 @@ interface NavbarProps {
   onToggleDarkMode: () => void;
   onOpenBooking: (serviceId?: string) => void;
   onOpenAdmin: () => void;
+  onOpenVoiceAssistant?: () => void;
   activeSection?: string;
   setActiveSection?: (sec: string) => void;
 }
@@ -24,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   onOpenBooking,
   onOpenAdmin,
+  onOpenVoiceAssistant,
   activeSection = 'hero',
   setActiveSection,
 }) => {
@@ -247,6 +249,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
+            {/* Live Voice Assistant Button */}
+            {onOpenVoiceAssistant && (
+              <button
+                onClick={onOpenVoiceAssistant}
+                className="px-3.5 py-1.5 rounded-full border border-[#D4AF37]/50 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                title="आवाज़ में ज्योतिष परामर्श - राजन कैथवास (मंटू)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" />
+                <span>आवाज़ में बात करें</span>
+              </button>
+            )}
+
             {/* Dark Mode Toggle */}
             <button
               onClick={onToggleDarkMode}
@@ -320,6 +334,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="pt-2 flex flex-col space-y-3">
+            {onOpenVoiceAssistant && (
+              <button
+                onClick={() => {
+                  onOpenVoiceAssistant();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 border border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[#D4AF37] text-xs font-bold rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+              >
+                <Sparkles className="w-4 h-4 text-[#FF9933] animate-pulse" />
+                <span>आवाज़ में बात करें</span>
+              </button>
+            )}
             <button
               onClick={() => {
                 onOpenBooking();

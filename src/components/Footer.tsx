@@ -16,7 +16,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
   const [footerSettings, setFooterSettings] = React.useState({
     helpline: '8319885134',
     whatsapp: '8319885134',
-    address: 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+    address: 'In front of Smart Point, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
     pincode: '480447',
   });
 
@@ -28,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
           setFooterSettings({
             helpline: data.settings.helplineNumber || data.settings.contactPhone || '8319885134',
             whatsapp: data.settings.whatsappNumber || '8319885134',
-            address: data.settings.officeAddress || 'Smart Point के सामने, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
+            address: 'In front of Smart Point, Mangli Bazar, Chhandameta, Parasia, Tehsil Parasia, District Chhindwara, Madhya Pradesh, India',
             pincode: data.settings.pincode || '480447',
           });
         }
@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
     {
       name: 'YouTube',
       handle: '@rajankaithwasji',
-      label: 'यूट्यूब (50K+ सब्‍सक्राइबर्स)',
+      label: 'YouTube (50K+ Subscribers)',
       url: 'https://youtube.com/@rajankaithwasji',
       icon: Youtube,
       hoverClass: 'hover:bg-red-600/20 hover:border-red-500/50 hover:text-red-400',
@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
     {
       name: 'Instagram',
       handle: '@rajankaithwasji',
-      label: 'इंस्टाग्राम (दैनिक राशिफल रील्स)',
+      label: 'Instagram (Daily Horoscope Reels)',
       url: 'https://instagram.com/rajankaithwasji',
       icon: Instagram,
       hoverClass: 'hover:bg-pink-600/20 hover:border-pink-500/50 hover:text-pink-400',
@@ -91,8 +91,8 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
     },
     {
       name: 'Facebook',
-      handle: 'राजन कैथवास (मंटू)',
-      label: 'फ़ेसबुक (लाइव सत्संग एवं ज्योतिष)',
+      handle: 'Rajan Kaithwas (Mantoo)',
+      label: 'Facebook (Live Satsang & Astrology)',
       url: 'https://facebook.com/rajankaithwasji',
       icon: Facebook,
       hoverClass: 'hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-blue-400',
@@ -121,23 +121,23 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
               </div>
               <div>
                 <span className="font-serif text-base font-bold tracking-tight text-[#D4AF37] block">
-                  राजन कैथवास (मंटू)
+                  Rajan Kaithwas (Mantoo)
                 </span>
                 <span className="text-[10px] text-[#FF9933] font-semibold tracking-wider block">
-                  वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन
+                  Vedic Astrology & Spiritual Guidance
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-white/70 leading-relaxed max-w-sm">
-              "प्राचीन वैदिक ज्ञान के माध्यम से आपके जीवन का सही मार्गदर्शन।" अंतरराष्ट्रीय स्वर्ण पदक प्राप्त ज्योतिषाचार्य - जन्म कुंडली विश्लेषण, विवाह मिलान, वास्तु शास्त्र एवं रत्न परामर्श।
+              "Authentic life guidance through ancient Vedic wisdom." International Gold Medalist Astrologer — Horoscope Analysis, Matchmaking, Vastu Shastra & Gemstone Consultation.
             </p>
 
             {/* Social Media Integration Component */}
             <div className="pt-2 space-y-2.5">
               <div className="flex items-center space-x-2 text-xs font-semibold text-[#D4AF37]">
                 <Share2 className="w-3.5 h-3.5 text-[#FF9933]" />
-                <span>सोशल मीडिया पर जुड़ें (Social Media):</span>
+                <span>Connect on Social Media:</span>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -162,36 +162,36 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
 
             <div className="flex items-center space-x-2 text-xs text-[#D4AF37] pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>100% गोपनीय एवं प्रामाणिक वैदिक परामर्श संस्थान</span>
+              <span>100% Confidential & Authentic Vedic Astrology Institute</span>
             </div>
           </div>
 
           {/* Col 2: Quick Links */}
           <div className="space-y-3">
             <h4 className="font-serif font-bold text-[#D4AF37] text-sm border-b border-white/10 pb-2">
-              त्वरित लिंक
+              Quick Links
             </h4>
             <ul className="space-y-2 text-xs text-white/70">
-              <li><a href="#hero" className="hover:text-[#D4AF37] transition-colors">मुखपृष्ठ</a></li>
-              <li><a href="#about" className="hover:text-[#D4AF37] transition-colors">हमारे बारे में</a></li>
-              <li><a href="#services" className="hover:text-[#D4AF37] transition-colors">ज्योतिष सेवाएँ</a></li>
-              <li><a href="#ai-studio" className="hover:text-[#D4AF37] transition-colors">एआई जन्म कुंडली</a></li>
-              <li><a href="#horoscope" className="hover:text-[#D4AF37] transition-colors">दैनिक राशिफल</a></li>
-              <li><a href="#panchang" className="hover:text-[#D4AF37] transition-colors">आज का पंचांग</a></li>
-              <li><a href="#blog" className="hover:text-[#D4AF37] transition-colors">वैदिक ब्लॉग</a></li>
+              <li><a href="#hero" className="hover:text-[#D4AF37] transition-colors">Home</a></li>
+              <li><a href="#about" className="hover:text-[#D4AF37] transition-colors">About Us</a></li>
+              <li><a href="#services" className="hover:text-[#D4AF37] transition-colors">Astrology Services</a></li>
+              <li><a href="#ai-studio" className="hover:text-[#D4AF37] transition-colors">AI Horoscope</a></li>
+              <li><a href="#horoscope" className="hover:text-[#D4AF37] transition-colors">Daily Horoscope</a></li>
+              <li><a href="#panchang" className="hover:text-[#D4AF37] transition-colors">Today's Panchang</a></li>
+              <li><a href="#blog" className="hover:text-[#D4AF37] transition-colors">Vedic Blog</a></li>
             </ul>
           </div>
 
           {/* Col 3: Official Contact Information */}
           <div className="space-y-3">
             <h4 className="font-serif font-bold text-[#D4AF37] text-sm border-b border-white/10 pb-2">
-              संपर्क जानकारी (Contact Info)
+              Contact Information
             </h4>
             <div className="space-y-2.5 text-xs text-white/80">
               <div className="flex items-start space-x-2">
                 <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-white/60 block text-[11px]">हेल्पलाइन नंबर:</span>
+                  <span className="text-white/60 block text-[11px]">Helpline Number:</span>
                   <a href={`tel:${footerSettings.helpline}`} className="text-[#D4AF37] font-semibold hover:underline">
                     {footerSettings.helpline}
                   </a>
@@ -201,7 +201,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
               <div className="flex items-start space-x-2">
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-white/60 block text-[11px]">व्हाट्सएप नंबर:</span>
+                  <span className="text-white/60 block text-[11px]">WhatsApp Number:</span>
                   <a href={`https://wa.me/91${footerSettings.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-semibold hover:underline">
                     {footerSettings.whatsapp}
                   </a>
@@ -211,12 +211,12 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
               <div className="flex items-start space-x-2">
                 <MapPin className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-white/60 block text-[11px]">कार्यालय पता:</span>
+                  <span className="text-white/60 block text-[11px]">Office Address:</span>
                   <span className="text-white/80 leading-relaxed block text-[11px]">
                     {footerSettings.address}
                   </span>
                   <span className="text-[#D4AF37] font-semibold block text-[11px] mt-0.5">
-                    पिनकोड: {footerSettings.pincode}
+                    PIN Code: {footerSettings.pincode}
                   </span>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
           {/* Col 4: Social Channels Bar, Language & Admin */}
           <div className="space-y-4">
             <h4 className="font-serif font-bold text-[#D4AF37] text-sm border-b border-white/10 pb-2">
-              आधिकारिक सोशल चैनल
+              Official Social Channels
             </h4>
 
             {/* Detailed Social Channel Cards */}
@@ -242,7 +242,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
                   <span className="font-medium text-xs">YouTube Channel</span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-semibold">
-                  सब्सक्राइब करें
+                  Subscribe
                 </span>
               </a>
 
@@ -257,7 +257,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
                   <span className="font-medium text-xs">Instagram Profile</span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 font-semibold">
-                  फॉलो करें
+                  Follow
                 </span>
               </a>
 
@@ -272,13 +272,13 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
                   <span className="font-medium text-xs">Facebook Page</span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
-                  लाइक करें
+                  Like
                 </span>
               </a>
             </div>
 
             <div>
-              <label className="block text-[11px] text-white/50 mb-1">भाषा चुनें (Select Language):</label>
+              <label className="block text-[11px] text-white/50 mb-1">Select Language:</label>
               <select
                 value={currentLang}
                 onChange={(e) => onLanguageChange(e.target.value as Language)}
@@ -296,9 +296,9 @@ export const Footer: React.FC<FooterProps> = ({ currentLang, onLanguageChange, o
 
         {/* Bottom Bar & Disclaimer */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-white/40 gap-4">
-          <p>© {new Date().getFullYear()} राजन कैथवास (मंटू) वैदिक ज्योतिष एवं आध्यात्मिक मार्गदर्शन। सर्वाधिकार सुरक्षित।</p>
+          <p>© {new Date().getFullYear()} Rajan Kaithwas (Mantoo) Vedic Astrology & Spiritual Guidance. All rights reserved.</p>
           <p className="text-center sm:text-right max-w-md">
-            अस्वीकरण: ज्योतिषीय फलादेश पारंपरिक वैदिक गणनाओं एवं आध्यात्मिक मार्गदर्शन हेतु प्रदान किए जाते हैं।
+            Disclaimer: Astrological predictions are provided based on traditional Vedic calculations and spiritual guidance.
           </p>
         </div>
       </div>

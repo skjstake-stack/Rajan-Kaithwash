@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
-import { GoogleGenAI } from '@google/genai';
+import http from 'http';
+import { WebSocketServer } from 'ws';
+import { GoogleGenAI, Modality } from '@google/genai';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import adminAuthRoutes from './src/routes/adminAuthRoutes.ts';
@@ -4214,13 +4216,113 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Live API WebSocket Integration using gemini-3.1-flash-live-preview
+function setupLiveApiWebSocket(server: http.Server) {
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (request, socket, head) => {
+    try {
+      const url = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
+      if (url.pathname === '/api/live-ws') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+          wss.emit('connection', ws, request);
+        });
+      }
+    } catch (err) {
+      console.error('Error handling WebSocket upgrade:', err);
+    }
+  });
+
+  wss.on('connection', async (clientWs) => {
+    let session: any = null;
+    try {
+      const ai = getGeminiClient();
+      session = await ai.live.connect({
+        model: 'gemini-3.1-flash-live-preview',
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } },
+          },
+          systemInstruction: 'You are राजन कैथवास (मंटू) [Pt. Rajan Kaithwas (Mantoo Ji)], a calm, mature, compassionate, and revered male Vedic Astrologer. Speak with a natural, clear, respectful, and authoritative male tone primarily in fluent Hindi (or English if addressed in English). Provide authentic Vedic astrology, Kundli analysis, horoscope guidance, and spiritual wisdom in real time with a reassuring and trustworthy voice.',
+          outputAudioTranscription: {},
+          inputAudioTranscription: {},
+        },
+        callbacks: {
+          onmessage: (message: any) => {
+            const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+            const text = message.serverContent?.modelTurn?.parts?.[0]?.text;
+            if (audio) {
+              clientWs.send(JSON.stringify({ type: 'audio', audio }));
+            }
+            if (text) {
+              clientWs.send(JSON.stringify({ type: 'text', text }));
+            }
+            if (message.serverContent?.interrupted) {
+              clientWs.send(JSON.stringify({ type: 'interrupted' }));
+            }
+            if (message.serverContent?.turnComplete) {
+              clientWs.send(JSON.stringify({ type: 'turnComplete' }));
+            }
+          },
+          onclose: () => {
+            if (clientWs.readyState === clientWs.OPEN) {
+              clientWs.send(JSON.stringify({ type: 'closed' }));
+            }
+          },
+          onerror: (err: any) => {
+            console.error('Gemini Live API session error:', err);
+            if (clientWs.readyState === clientWs.OPEN) {
+              clientWs.send(JSON.stringify({ type: 'error', error: err?.message || 'Gemini Live API error' }));
+            }
+          },
+        },
+      });
+
+      clientWs.send(JSON.stringify({ type: 'ready' }));
+    } catch (err: any) {
+      console.error('Failed to establish Gemini Live API session:', err);
+      if (clientWs.readyState === clientWs.OPEN) {
+        clientWs.send(JSON.stringify({ type: 'error', error: err?.message || 'Failed to start Gemini Live API session' }));
+        clientWs.close();
+      }
+      return;
+    }
+
+    clientWs.on('message', (data) => {
+      try {
+        const msg = JSON.parse(data.toString());
+        if (msg.audio && session) {
+          session.sendRealtimeInput({
+            audio: { data: msg.audio, mimeType: 'audio/pcm;rate=16000' },
+          });
+        } else if (msg.text && session) {
+          session.sendRealtimeInput({
+            text: msg.text,
+          });
+        }
+      } catch (e) {
+        console.error('Error handling WebSocket message:', e);
+      }
+    });
+
+    clientWs.on('close', () => {
+      if (session) {
+        try {
+          session.close();
+        } catch (_) {}
+      }
+    });
+  });
+}
+
 // Setup Vite middleware for development, static serve for production
 async function startServer() {
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.RENDER || !!process.env.CLOUD_RUN;
   if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: false },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -4232,7 +4334,10 @@ async function startServer() {
     });
   }
 
-  app.listen(Number(PORT), '0.0.0.0', () => {
+  const server = http.createServer(app);
+  setupLiveApiWebSocket(server);
+
+  server.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`✨ Rajan Kaithwas (Mantoo) Ji Vedic Astrology Server running on http://0.0.0.0:${PORT}`);
   });
 }
