@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sparkles, BookOpen, Clock, Tag, ArrowRight, Search, Share2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, BookOpen, Clock, Tag, ArrowRight, Search, Share2, Loader2 } from 'lucide-react';
 import { BlogPost, Language } from '../types';
 import { BLOG_POSTS } from '../data/astrologyData';
 import { CleanFormattedText } from '../utils/textUtils';
@@ -10,10 +10,46 @@ interface BlogSectionProps {
 }
 
 export const BlogSection: React.FC<BlogSectionProps> = ({ darkMode }) => {
+  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS);
+  const [loading, setLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
-  const filteredPosts = BLOG_POSTS.filter(
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/blogs')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && Array.isArray(data.blogs) && data.blogs.length > 0) {
+          const fetchedPosts: BlogPost[] = data.blogs.map((b: any) => ({
+            id: b.id || b.slug,
+            title: b.title,
+            category: b.category || 'ज्योतिष',
+            author: b.author || 'पं. राजन कैथवास',
+            date: b.publish_date ? b.publish_date.split(' ')[0] : (b.date || '2026-08-01'),
+            readTime: b.reading_time || b.readTime || '4 मिनट',
+            imageUrl: b.featured_image_url || b.imageUrl || 'https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?auto=format&fit=crop&w=800&q=80',
+            excerpt: b.short_description || b.excerpt || '',
+            content: b.content || '',
+            tags: Array.isArray(b.tags) ? b.tags : ['Astrology', 'Remedies'],
+          }));
+          setPosts(fetchedPosts);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not fetch dynamic blog posts, using default articles:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const handleReadPost = (post: BlogPost) => {
+    setSelectedPost(post);
+    fetch(`/api/blogs/${post.id}`).catch(() => {});
+  };
+
+  const filteredPosts = posts.filter(
     (post) =>
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,7 +162,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ darkMode }) => {
               <div className="p-6 pt-0 border-t border-white/10 flex items-center justify-between">
                 <span className="text-xs font-medium text-white/60">लेखक: {post.author}</span>
                 <button
-                  onClick={() => setSelectedPost(post)}
+                  onClick={() => handleReadPost(post)}
                   className="flex items-center text-xs font-bold text-[#D4AF37] hover:text-[#FF9933] cursor-pointer"
                 >
                   <span>संपूर्ण लेख पढ़ें</span>

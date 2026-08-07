@@ -20,9 +20,10 @@ import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
 
 import { Language, AdminUser } from './types';
+import { useBrowserLocale } from './hooks/useBrowserLocale';
 
 export default function App() {
-  const [currentLang, setCurrentLang] = useState<Language>('hi');
+  const [currentLang, setCurrentLang] = useBrowserLocale();
   const [darkMode, setDarkMode] = useState(true);
 
   // Dynamic Site Settings for SEO
