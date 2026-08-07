@@ -7,7 +7,7 @@ import adminAuthRoutes from './src/routes/adminAuthRoutes.ts';
 import { seedInitialAdmins } from './src/lib/adminAuthService.ts';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -4216,7 +4216,8 @@ app.get('/api/health', (req, res) => {
 
 // Setup Vite middleware for development, static serve for production
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.RENDER || !!process.env.CLOUD_RUN;
+  if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -4231,7 +4232,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`✨ Rajan Kaithwas (Mantoo) Ji Vedic Astrology Server running on http://0.0.0.0:${PORT}`);
   });
 }
