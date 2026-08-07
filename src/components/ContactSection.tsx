@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Phone, Mail, MapPin, Send, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
 import { Language } from '../types';
+import { createEnquiryInFirestore } from '../lib/firebase';
 
 interface ContactSectionProps {
   darkMode: boolean;
@@ -43,6 +44,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ darkMode }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    createEnquiryInFirestore({
+      name: formData.name,
+      phone: formData.phone,
+      message: `[Service: ${formData.service}] Email: ${formData.email} - ${formData.message}`
+    }).catch((err) => console.warn('Firestore enquiry sync note:', err));
+
     setFormSent(true);
     setTimeout(() => {
       setFormSent(false);

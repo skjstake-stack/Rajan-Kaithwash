@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Catch-All Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- HELPER FUNCTIONS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'skjstake@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- ENTITY VALIDATORS ---
+    function isValidBooking(data) {
+      return data.keys().hasAll(['name', 'phone', 'serviceId', 'createdAt']) &&
+        data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+        data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 15 &&
+        data.serviceId is string && data.serviceId.size() <= 50 &&
+        data.createdAt is string &&
+        (!('email' in data) || (data.email is string && data.email.size() <= 100)) &&
+        (!('serviceTitle' in data) || (data.serviceTitle is string && data.serviceTitle.size() <= 150)) &&
+        (!('preferredDate' in data) || (data.preferredDate is string && data.preferredDate.size() <= 20)) &&
+        (!('preferredTime' in data) || (data.preferredTime is string && data.preferredTime.size() <= 20)) &&
+        (!('birthDetails' in data) || (data.birthDetails is string && data.birthDetails.size() <= 500)) &&
+        (!('status' in data) || (data.status in ['pending', 'confirmed', 'completed', 'cancelled'])) &&
+        (!('userId' in data) || (data.userId is string && data.userId.size() <= 128));
+    }
+
+    function isValidEnquiry(data) {
+      return data.keys().hasAll(['name', 'phone', 'message', 'createdAt']) &&
+        data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+        data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 15 &&
+        data.message is string && data.message.size() >= 2 && data.message.size() <= 1000 &&
+        data.createdAt is string;
+    }
+
+    function isValidKundliRecord(data) {
+      return data.keys().hasAll(['name', 'dob', 'tob', 'pob', 'createdAt']) &&
+        data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+        data.dob is string && data.dob.size() <= 20 &&
+        data.tob is string && data.tob.size() <= 20 &&
+        data.pob is string && data.pob.size() <= 100 &&
+        data.createdAt is string &&
+        (!('gender' in data) || (data.gender in ['male', 'female', 'other'])) &&
+        (!('lagna' in data) || (data.lagna is string && data.lagna.size() <= 50)) &&
+        (!('rashi' in data) || (data.rashi is string && data.rashi.size() <= 50)) &&
+        (!('nakshatra' in data) || (data.nakshatra is string && data.nakshatra.size() <= 50)) &&
+        (!('userId' in data) || (data.userId is string && data.userId.size() <= 128));
+    }
+
+    // --- MATCH BLOCKS ---
+
+    // 1. BOOKINGS COLLECTION
+    match /bookings/{bookingId} {
+      allow get: if isValidId(bookingId) && (isAdmin() || (isSignedIn() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(bookingId) && isValidBooking(incoming()) &&
+        (!('userId' in incoming()) || incoming().userId == request.auth.uid);
+      allow update: if isValidId(bookingId) && isValidBooking(incoming()) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid && incoming().userId == existing().userId)
+      );
+      allow delete: if isValidId(bookingId) && isAdmin();
+    }
+
+    // 2. ENQUIRIES COLLECTION
+    match /enquiries/{enquiryId} {
+      allow get: if isValidId(enquiryId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(enquiryId) && isValidEnquiry(incoming());
+      allow update: if isValidId(enquiryId) && isAdmin() && isValidEnquiry(incoming());
+      allow delete: if isValidId(enquiryId) && isAdmin();
+    }
+
+    // 3. KUNDLI RECORDS COLLECTION
+    match /kundli_records/{kundliId} {
+      allow get: if isValidId(kundliId) && (isAdmin() || (isSignedIn() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(kundliId) && isValidKundliRecord(incoming()) &&
+        (!('userId' in incoming()) || incoming().userId == request.auth.uid);
+      allow update: if isValidId(kundliId) && isValidKundliRecord(incoming()) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid && incoming().userId == existing().userId)
+      );
+      allow delete: if isValidId(kundliId) && (isAdmin() || (isSignedIn() && existing().userId == request.auth.uid));
+    }
+  }
+}

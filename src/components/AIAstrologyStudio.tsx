@@ -4,6 +4,7 @@ import { Language } from '../types';
 import { CleanFormattedText, cleanMarkdownSymbols } from '../utils/textUtils';
 import { KUNDLI_LANGUAGES, KUNDLI_TRANSLATIONS } from '../data/kundliTranslations';
 import { calculateVedicKundli, KundliCalculationResult } from '../utils/vedicKundliCalc';
+import { saveKundliToFirestore } from '../lib/firebase';
 import { NorthIndianKundliChart } from './NorthIndianKundliChart';
 import { KundliDetailsTable } from './KundliDetailsTable';
 
@@ -125,6 +126,18 @@ export const AIAstrologyStudio: React.FC<AIAstrologyStudioProps> = ({ currentLan
       kundliForm.gender
     );
     setCalcKundliData(computed);
+
+    // Save Kundli record to Firebase Firestore
+    saveKundliToFirestore({
+      name: kundliForm.name || 'User',
+      gender: kundliForm.gender.toLowerCase() === 'female' ? 'female' : 'male',
+      dob: kundliForm.dob,
+      tob: kundliForm.tob,
+      pob: kundliForm.pob,
+      lagna: computed.summary.lagnaSignKey,
+      rashi: computed.summary.moonSignKey,
+      nakshatra: computed.summary.nakshatraKey
+    }).catch((err) => console.warn('Firestore Kundli sync note:', err));
 
     try {
       const res = await fetch('/api/ai/kundli', {

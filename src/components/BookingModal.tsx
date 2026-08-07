@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Calendar, Clock, User, Mail, Phone, MapPin, Video, MessageSquare, CheckCircle2, ShieldCheck, Download, Loader2, Sparkles, CreditCard, QrCode } from 'lucide-react';
 import { ASTROLOGY_SERVICES } from '../data/astrologyData';
 import { Booking } from '../types';
+import { createBookingInFirestore } from '../lib/firebase';
 
 interface BookingModalProps {
   initialServiceId?: string;
@@ -45,6 +46,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({ initialServiceId, on
   const handleCompleteBooking = async () => {
     setLoadingPayment(true);
     try {
+      // Create in Firestore
+      createBookingInFirestore({
+        name: clientForm.name,
+        phone: clientForm.phone,
+        email: clientForm.email,
+        serviceId: selectedService.id,
+        serviceTitle: selectedService.title,
+        preferredDate: selectedDate,
+        preferredTime: selectedTimeSlot,
+        birthDetails: `DOB: ${clientForm.dob}, TOB: ${clientForm.tob}, POB: ${clientForm.pob}. Notes: ${clientForm.notes}`
+      }).catch((e) => console.warn('Firestore booking background sync note:', e));
+
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
