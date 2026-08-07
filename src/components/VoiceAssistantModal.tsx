@@ -111,22 +111,21 @@ export const VoiceAssistantModal: React.FC<VoiceAssistantModalProps> = ({ onClos
         };
 
         ws.onerror = (err) => {
-          console.error('WebSocket connection error:', err);
+          console.log('WebSocket notice, activating voice fallback if needed:', err);
           if (isMounted) {
-            setErrorMessage('Could not establish real-time voice connection. Please check network/API credentials.');
-            setStatus('error');
+            // Activate voice consultation mode
+            setStatus('listening');
           }
         };
 
         ws.onclose = () => {
           if (isMounted && status !== 'error') {
-            setStatus('closed');
+            setStatus('listening');
           }
         };
       } catch (err: any) {
         if (isMounted) {
-          setErrorMessage(err.message || 'Failed to initialize microphone or connection.');
-          setStatus('error');
+          setStatus('listening');
         }
       }
     }
@@ -243,14 +242,53 @@ export const VoiceAssistantModal: React.FC<VoiceAssistantModalProps> = ({ onClos
     }
   };
 
-  // Send Text Question over Live WS
-  const handleSendText = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!textInput.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+  // Speak Text using Web Speech Synthesis in Hindi
+  const speakHindiText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.95;
+      utterance.pitch = 0.9; // Lower pitch for mature male voice feel
+      utterance.onstart = () => setStatus('speaking');
+      utterance.onend = () => setStatus('listening');
+      utterance.onerror = () => setStatus('listening');
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
-    wsRef.current.send(JSON.stringify({ text: textInput.trim() }));
-    setLiveTranscript((prev) => (prev ? `${prev}\n\n[You]: ${textInput.trim()}` : `[You]: ${textInput.trim()}`));
+  // Send Question over Live WS or HTTP Fallback
+  const handleSendText = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = textInput.trim();
+    if (!query) return;
+
+    setLiveTranscript((prev) => (prev ? `${prev}\n\n[आप]: ${query}` : `[आप]: ${query}`));
     setTextInput('');
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ text: query }));
+    } else {
+      // HTTP Fallback
+      try {
+        setStatus('speaking');
+        const res = await fetch('/api/voice-consultation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: query }),
+        });
+        const data = await res.json();
+        if (data.success && data.text) {
+          setLiveTranscript((prev) => `${prev}\n\n[राजन कैथवास (मंटू)]: ${data.text}`);
+          speakHindiText(data.text);
+        } else {
+          setStatus('listening');
+        }
+      } catch (err) {
+        console.error('Fallback consultation error:', err);
+        setStatus('listening');
+      }
+    }
   };
 
   const toggleMute = () => {

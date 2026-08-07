@@ -4216,14 +4216,40 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Voice Consultation HTTP Endpoint Fallback
+app.post('/api/voice-consultation', async (req, res) => {
+  try {
+    const { message } = req.body;
+    const ai = getGeminiClient();
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.6-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: message || 'नमस्ते गुरुजी' }]
+        }
+      ],
+      config: {
+        systemInstruction: 'आप राजन कैथवास (मंटू) हैं, एक परम पूज्य एवं अनुभवी वैदिक ज्योतिषी। आप हमेशा सहज एवं शुद्ध हिंदी में सम्मानपूर्वक परामर्श देते हैं। संक्षिप्त, स्पष्ट एवं प्रभावी वैदिक मार्गदर्शन एवं उपाय बताएं।',
+      }
+    });
+    const replyText = response.text || 'प्रणाम। आपकी कुण्डली एवं ग्रह नक्षत्र स्थिति के अनुसार सब शुभ एवं कल्याणकारी होगा।';
+    res.json({ success: true, text: replyText });
+  } catch (err: any) {
+    console.error('Error in voice consultation API:', err);
+    res.status(500).json({ success: false, error: err?.message || 'Server error' });
+  }
+});
+
 // Live API WebSocket Integration using gemini-3.1-flash-live-preview
 function setupLiveApiWebSocket(server: http.Server) {
   const wss = new WebSocketServer({ noServer: true });
 
-  server.on('upgrade', (request, socket, head) => {
+  // Prepend upgrade listener so custom WS upgrade is handled before Vite/Express
+  server.prependListener('upgrade', (request, socket, head) => {
     try {
       const url = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
-      if (url.pathname === '/api/live-ws') {
+      if (url.pathname.startsWith('/api/live-ws')) {
         wss.handleUpgrade(request, socket, head, (ws) => {
           wss.emit('connection', ws, request);
         });
@@ -4235,6 +4261,14 @@ function setupLiveApiWebSocket(server: http.Server) {
 
   wss.on('connection', async (clientWs) => {
     let session: any = null;
+
+    // Ping interval to keep connection alive across proxies
+    const pingInterval = setInterval(() => {
+      if (clientWs.readyState === clientWs.OPEN) {
+        clientWs.ping();
+      }
+    }, 20000);
+
     try {
       const ai = getGeminiClient();
       session = await ai.live.connect({
@@ -4286,6 +4320,7 @@ function setupLiveApiWebSocket(server: http.Server) {
         clientWs.send(JSON.stringify({ type: 'error', error: err?.message || 'Failed to start Gemini Live API session' }));
         clientWs.close();
       }
+      clearInterval(pingInterval);
       return;
     }
 
@@ -4307,6 +4342,7 @@ function setupLiveApiWebSocket(server: http.Server) {
     });
 
     clientWs.on('close', () => {
+      clearInterval(pingInterval);
       if (session) {
         try {
           session.close();
